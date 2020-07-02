@@ -32,6 +32,7 @@ dependencies {
     implementation("io.ktor", "ktor-client-core", "1.3.2")
     implementation("io.ktor", "ktor-client-apache", "1.3.2")
     implementation("commons-io", "commons-io", "2.7")
+    implementation("commons-cli", "commons-cli", "1.4")
     testImplementation("io.kotest", "kotest-runner-junit5-jvm", "4.0.6")
     testImplementation("io.kotest", "kotest-assertions-core-jvm", "4.0.6")
     testImplementation("io.kotest", "kotest-property-jvm", "4.0.6")

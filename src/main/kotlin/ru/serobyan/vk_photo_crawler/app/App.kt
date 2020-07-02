@@ -2,6 +2,8 @@ package ru.serobyan.vk_photo_crawler.app
 
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
+import ru.serobyan.vk_photo_crawler.app.arguments.AppCommand
+import ru.serobyan.vk_photo_crawler.app.arguments.Arguments
 import ru.serobyan.vk_photo_crawler.service.vk.VkGroupPhotoIdsCrawler
 import ru.serobyan.vk_photo_crawler.service.vk.VkGroupPhotoUrlsCrawler
 import ru.serobyan.vk_photo_crawler.service.vk.VkPhotoDownloader
@@ -33,7 +35,7 @@ object App {
         arguments: Arguments
     ) {
         crawler.crawlPhotoIds(
-            groupUrl = arguments.groupUrl,
+            groupUrl = arguments.vkGroupUrl,
             login = arguments.login,
             password = arguments.password
         )
