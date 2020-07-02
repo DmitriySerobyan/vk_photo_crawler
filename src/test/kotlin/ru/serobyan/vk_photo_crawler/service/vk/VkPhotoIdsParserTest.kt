@@ -1,10 +1,9 @@
-package ru.serobyan.vk_photo_crawler
+package ru.serobyan.vk_photo_crawler.service.vk
 
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
-import ru.serobyan.vk_photo_crawler.service.vk.VkPhotoIdsParser
 
 class VkPhotoIdsParserTest : StringSpec({
 
