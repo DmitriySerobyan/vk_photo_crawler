@@ -1,11 +1,12 @@
 package ru.serobyan.vk_photo_crawler.utils.logging
 
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
-class LogSetting {
-    lateinit var logger: Logger
-    internal val isLoggerSet: Boolean get() = this::logger.isInitialized
+class LogSetting(
+    val logger: Logger = LoggerFactory.getLogger(LogSetting::class.java)
+) {
     var startLogLevel: Level = Level.DEBUG
     var executeLogLevel: Level = Level.TRACE
     var endLogLevel: Level = Level.DEBUG
@@ -19,7 +20,7 @@ class LogSetting {
         exceptionLogLevel = level
     }
 
-    fun logData(key: String, value: Any?) {
+    fun loggingData(key: String, value: Any?) {
         initialContextData[key] = value
     }
 }

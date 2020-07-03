@@ -6,13 +6,19 @@ import org.slf4j.event.Level
 
 class LoggingTest: StringSpec({
 
-    "!:manual" {
-        log("mySave", { setAllLogLevel(Level.WARN) }) {
+    "!:manual 1" {
+        log("find", { setAllLogLevel(Level.INFO) }) {
             log()
             delay(1000L)
-            logData("myLogData", 222)
+            loggingData("user", 222)
             log()
         }
+    }
+
+    "!:manual 2" {
+        val logger = Logger(setting = LogSetting().apply { setAllLogLevel(Level.INFO) })
+        logger.loggingData("user", 222)
+        logger.log()
     }
 
 })

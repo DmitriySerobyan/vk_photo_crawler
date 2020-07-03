@@ -4,16 +4,10 @@ import org.slf4j.event.Level
 import ru.serobyan.vk_photo_crawler.utils.json.Json
 import java.time.Instant
 
-interface IOperationLogDslContext {
-    fun log(message: String? = null)
-    fun log(level: Level, message: String? = null)
-    fun logData(key: String, value: Any?)
-}
-
-class OperationLogDslContext(
-    private val setting: LogSetting,
-    private val context: LogContext
-) : IOperationLogDslContext {
+class Logger(
+    private val setting: LogSetting = LogSetting(),
+    private val context: LogContext = LogContext()
+) : ILogger {
     override fun log(message: String?) {
         log(level = setting.executeLogLevel, message = message)
     }
@@ -32,7 +26,7 @@ class OperationLogDslContext(
         }
     }
 
-    override fun logData(key: String, value: Any?) {
+    override fun loggingData(key: String, value: Any?) {
         context.data[key] = value
     }
 }

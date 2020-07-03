@@ -1,11 +1,12 @@
 package ru.serobyan.vk_photo_crawler.utils.logging
 
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.util.*
 
 suspend fun <T> log(
     operationName: String,
-    operation: suspend IOperationLogDslContext.() -> T
+    operation: suspend ILogger.() -> T
 ): T {
     return log(
         operationName = operationName,
@@ -18,7 +19,7 @@ suspend fun <T> log(
 suspend fun <T> log(
     operationName: String,
     configureLog: suspend LogSetting.() -> Unit,
-    operation: suspend IOperationLogDslContext.() -> T
+    operation: suspend ILogger.() -> T
 ): T {
     return log(
         operationName = operationName,
@@ -31,7 +32,7 @@ suspend fun <T> log(
 suspend fun <T> log(
     operationName: String,
     operationId: String,
-    operation: suspend IOperationLogDslContext.() -> T
+    operation: suspend ILogger.() -> T
 ): T {
     return log(
         operationName = operationName,
@@ -45,31 +46,35 @@ suspend fun <T> log(
     operationName: String,
     operationId: String = generateOperationId(),
     configureLog: suspend LogSetting.() -> Unit,
-    operation: suspend IOperationLogDslContext.() -> T
+    operation: suspend ILogger.() -> T
 ): T {
     var operationResult: T? = null
-    val setting = LogSetting().apply {
+    val logger = LoggerFactory.getLogger(operationName)
+    val setting = LogSetting(logger = logger).apply {
         configureLog()
-        if (!isLoggerSet) logger = LoggerFactory.getLogger(operationName)
     }
     val context = LogContext(
-        operation_name = operationName,
-        operation_id = operationId,
+        operation = Operation(
+            name = operationName,
+            id = operationId,
+            state = OperationState.START,
+            start_time = Instant.now().epochSecond
+        ),
         data = setting.initialContextData.toMutableMap()
     )
-    val dsl: IOperationLogDslContext = OperationLogDslContext(setting = setting, context = context)
+    val dsl: ILogger = Logger(setting = setting, context = context)
     with(dsl) {
         log(level = setting.startLogLevel)
         try {
-            context.state = LogInformationState.EXECUTE
+            context.operation.state = OperationState.EXECUTE
             operationResult = operation()
-            context.executionIsOver()
-            context.state = LogInformationState.END
+            context.operation.executionIsOver()
+            context.operation.state = OperationState.END
             log(level = setting.endLogLevel)
         } catch (e: Throwable) {
-            context.executionIsOver()
-            context.exception = e
-            context.state = LogInformationState.EXCEPTION
+            context.operation.executionIsOver()
+            context.operation.exception = e
+            context.operation.state = OperationState.EXCEPTION
             log(level = setting.exceptionLogLevel)
             throw e
         }
