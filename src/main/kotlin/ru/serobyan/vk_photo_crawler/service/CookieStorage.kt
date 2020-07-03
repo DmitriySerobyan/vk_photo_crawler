@@ -2,7 +2,7 @@ package ru.serobyan.vk_photo_crawler.service
 
 import org.openqa.selenium.Cookie
 import ru.serobyan.vk_photo_crawler.di.Config
-import ru.serobyan.vk_photo_crawler.utils.Json
+import ru.serobyan.vk_photo_crawler.utils.json.Json
 import java.io.File
 
 class CookieStorage(

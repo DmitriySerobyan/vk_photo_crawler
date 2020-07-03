@@ -1,4 +1,4 @@
-package ru.serobyan.vk_photo_crawler.utils
+package ru.serobyan.vk_photo_crawler.utils.json
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

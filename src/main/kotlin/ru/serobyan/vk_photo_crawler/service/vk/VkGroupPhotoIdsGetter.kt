@@ -13,7 +13,7 @@ import ru.serobyan.vk_photo_crawler.selenium.alert
 import ru.serobyan.vk_photo_crawler.selenium.proxy.getHarEntryByUrl
 import ru.serobyan.vk_photo_crawler.selenium.scrollBy
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
-import ru.serobyan.vk_photo_crawler.utils.Json
+import ru.serobyan.vk_photo_crawler.utils.json.Json
 
 
 class VkGroupPhotoIdsGetter(

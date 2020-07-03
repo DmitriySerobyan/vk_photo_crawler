@@ -8,7 +8,7 @@ import org.openqa.selenium.WebDriver
 import ru.serobyan.vk_photo_crawler.app.App
 import ru.serobyan.vk_photo_crawler.app.arguments.ArgumentsParser
 import ru.serobyan.vk_photo_crawler.di.di
-import ru.serobyan.vk_photo_crawler.utils.Json
+import ru.serobyan.vk_photo_crawler.utils.json.Json
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) = runBlocking {
