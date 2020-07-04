@@ -33,15 +33,11 @@ import javax.sql.DataSource
 
 val seleniumModule = Kodein.Module("selenium") {
     bind<WebDriver>(tag = "proxy") with singleton {
-        System.setProperty("webdriver.chrome.driver",
-            Config.pathToChromeDriver
-        )
+        System.setProperty("webdriver.chrome.driver", Config.pathToChromeDriver)
         ChromeDriver(instance<ChromeOptions>(tag = "proxy"))
     }
     bind<WebDriver>(tag = "no-proxy") with singleton {
-        System.setProperty("webdriver.chrome.driver",
-            Config.pathToChromeDriver
-        )
+        System.setProperty("webdriver.chrome.driver", Config.pathToChromeDriver)
         ChromeDriver()
     }
 }

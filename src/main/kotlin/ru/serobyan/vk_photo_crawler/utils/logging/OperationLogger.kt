@@ -4,18 +4,18 @@ import org.slf4j.event.Level
 import ru.serobyan.vk_photo_crawler.utils.json.Json
 import java.time.Instant
 
-class Logger(
-    private val setting: LogSetting = LogSetting(),
-    private val context: LogContext = LogContext()
-) : ILogger {
+class OperationLogger(
+    override val logSetting: LogSetting = LogSetting(),
+    override val logContext: LogContext = LogContext()
+) : IOperationLogger {
     override fun log(message: String?) {
-        log(level = setting.executeLogLevel, message = message)
+        log(level = logSetting.executeLogLevel, message = message)
     }
 
     override fun log(level: Level, message: String?) {
-        context.time = Instant.now().epochSecond
-        val logText = if (message != null) "$message ${Json.toJson(context)}" else Json.toJson(context)
-        with(setting.logger) {
+        logContext.time = Instant.now().epochSecond
+        val logText = if (message != null) "$message ${Json.toJson(logContext)}" else Json.toJson(logContext)
+        with(logSetting.logger) {
             when (level) {
                 Level.TRACE -> trace(logText)
                 Level.DEBUG -> debug(logText)
@@ -27,6 +27,6 @@ class Logger(
     }
 
     override fun loggingData(key: String, value: Any?) {
-        context.data[key] = value
+        logContext.data[key] = value
     }
 }

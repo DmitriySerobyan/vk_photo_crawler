@@ -4,17 +4,39 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
-suspend fun <T> log(
+suspend fun <T> IOperationLogger.subOperationLog(
+    operationName: String,
+    configureLog: suspend LogSetting.() -> Unit = {},
+    operation: suspend IOperationLogger.() -> T
+): T {
+    val parentOperationLogger = this
+    val subOperationName = "${parentOperationLogger.logContext.operation.name}/${operationName}"
+    val logger = LoggerFactory.getLogger(subOperationName)
+    val setting = parentOperationLogger.logSetting.copy(
+        logger = logger,
+        initialContextData = parentOperationLogger.logContext.data
+    ).apply { configureLog() }
+    val context = LogContext(
+        operation = Operation(
+            name = subOperationName,
+            id = parentOperationLogger.logContext.operation.id,
+            state = OperationState.START,
+            start_time = Instant.now().epochSecond
+        ),
+        data = setting.initialContextData.toMutableMap()
+    )
+    val operationOperationLogger: IOperationLogger = OperationLogger(logSetting = setting, logContext = context)
+    return operationOperationLogger.runOperation(operation)
+}
+
+suspend fun <T> operationLog(
     operationName: String,
     operationId: String = generateOperationId(),
-    configureLog: suspend LogSetting.() -> Unit,
-    operation: suspend ILogger.() -> T
+    configureLog: suspend LogSetting.() -> Unit = {},
+    operation: suspend IOperationLogger.() -> T
 ): T {
-    var operationResult: T? = null
     val logger = LoggerFactory.getLogger(operationName)
-    val setting = LogSetting(logger = logger).apply {
-        configureLog()
-    }
+    val setting = LogSetting(logger = logger).apply { configureLog() }
     val context = LogContext(
         operation = Operation(
             name = operationName,
@@ -24,26 +46,29 @@ suspend fun <T> log(
         ),
         data = setting.initialContextData.toMutableMap()
     )
-    val dsl: ILogger = Logger(setting = setting, context = context)
-    with(dsl) {
-        log(level = setting.startLogLevel)
-        try {
-            context.operation.state = OperationState.EXECUTE
-            operationResult = operation()
-            context.operation.executionIsOver()
-            context.operation.state = OperationState.END
-            log(level = setting.endLogLevel)
-        } catch (e: Throwable) {
-            context.operation.executionIsOver()
-            context.operation.exception = e
-            context.operation.state = OperationState.EXCEPTION
-            log(level = setting.exceptionLogLevel)
-            throw e
-        }
-    }
-    return operationResult!!
+    val operationOperationLogger: IOperationLogger = OperationLogger(logSetting = setting, logContext = context)
+    return operationOperationLogger.runOperation(operation)
 }
 
-internal fun generateOperationId(): String {
+private fun generateOperationId(): String {
     return UUID.randomUUID().toString()
+}
+
+private suspend fun <T> IOperationLogger.runOperation(operation: suspend IOperationLogger.() -> T): T {
+    val result: T
+    log(level = logSetting.startLogLevel)
+    try {
+        logContext.operation.state = OperationState.EXECUTE
+        result = operation()
+        logContext.operation.executionIsOver()
+        logContext.operation.state = OperationState.END
+        log(level = logSetting.endLogLevel)
+    } catch (e: Throwable) {
+        logContext.operation.executionIsOver()
+        logContext.operation.exception = e
+        logContext.operation.state = OperationState.EXCEPTION
+        log(level = logSetting.exceptionLogLevel)
+        throw e
+    }
+    return result
 }
