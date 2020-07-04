@@ -16,14 +16,30 @@ object VkPhotoTable : IntIdTable() {
     }
 }
 
-class VkPhoto(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<VkPhoto>(VkPhotoTable)
+class VkPhotoEntity(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<VkPhotoEntity>(VkPhotoTable)
 
     var groupUrl by VkPhotoTable.groupUrl
     var photoId by VkPhotoTable.photoId
     var photoUrl by VkPhotoTable.photoUrl
     var state by VkPhotoTable.state
+
+    fun toVkPhoto(): VkPhoto {
+        return VkPhoto(
+            groupUrl = groupUrl,
+            photoId = photoId,
+            photoUrl = photoUrl,
+            state = state
+        )
+    }
 }
+
+data class VkPhoto(
+    val groupUrl: String,
+    val photoId: String,
+    val photoUrl: String?,
+    val state: VkPhotoState
+)
 
 enum class VkPhotoState {
     PHOTO_ID_SAVED,

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.collect
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
-import ru.serobyan.vk_photo_crawler.model.VkPhoto
+import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginServiceContext
@@ -48,7 +48,7 @@ class VkGroupPhotoIdsCrawler(
         }) {
             try {
                 transaction {
-                    VkPhoto.new {
+                    VkPhotoEntity.new {
                         this.photoId = photoId
                         this.groupUrl = groupUrl
                         this.state = VkPhotoState.PHOTO_ID_SAVED

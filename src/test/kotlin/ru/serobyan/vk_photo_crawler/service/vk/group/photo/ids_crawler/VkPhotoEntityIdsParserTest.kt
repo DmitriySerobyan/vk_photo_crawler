@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 
-class VkPhotoIdsParserTest : StringSpec({
+class VkPhotoEntityIdsParserTest : StringSpec({
 
     "parse group main page" {
         val html = this::class.java.classLoader.getResourceAsStream("groupMainPage.html")!!.readAllBytes()

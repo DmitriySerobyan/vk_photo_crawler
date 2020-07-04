@@ -11,7 +11,7 @@ import org.apache.commons.io.FilenameUtils
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.serobyan.vk_photo_crawler.di.Config
-import ru.serobyan.vk_photo_crawler.model.VkPhoto
+import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
@@ -51,15 +51,15 @@ class VkPhotoDownloader(
         }
     }
 
-    private suspend fun VkPhotoDownloaderContext.getVkPhotos(): List<VkPhoto> {
+    private suspend fun VkPhotoDownloaderContext.getVkPhotos(): List<VkPhotoEntity> {
         return operationLogger.subOperationLog("get_vk_photos") {
             val vkPhotos = transaction {
-                VkPhoto
+                VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_URL_SAVED) and (VkPhotoTable.photoUrl.isNotNull()) }
                     .limit(1000)
                     .toList()
             }
-            loggingData("vk_photos", vkPhotos)
+            loggingData("vk_photos", vkPhotos.map { it.toVkPhoto() })
             vkPhotos
         }
     }
@@ -76,7 +76,7 @@ class VkPhotoDownloader(
         }
     }
 
-    private suspend fun VkPhotoDownloaderContext.markDownloaded(vkPhoto: VkPhoto) {
+    private suspend fun VkPhotoDownloaderContext.markDownloaded(vkPhoto: VkPhotoEntity) {
         operationLogger.subOperationLog("mark_downloaded") {
             transaction {
                 vkPhoto.state = VkPhotoState.DOWNLOADED

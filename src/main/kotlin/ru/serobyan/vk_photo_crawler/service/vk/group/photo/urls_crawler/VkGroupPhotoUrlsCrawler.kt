@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.openqa.selenium.TimeoutException
 import org.slf4j.event.Level
-import ru.serobyan.vk_photo_crawler.model.VkPhoto
+import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
@@ -44,22 +44,22 @@ class VkGroupPhotoUrlsCrawler(
         }
     }
 
-    private suspend fun VkGroupPhotoUrlsCrawlerContext.getVkPhotos(): List<VkPhoto> {
+    private suspend fun VkGroupPhotoUrlsCrawlerContext.getVkPhotos(): List<VkPhotoEntity> {
         return operationLogger.subOperationLog("get_vk_photos") {
             val vkPhotos = transaction {
-                VkPhoto
+                VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_ID_SAVED) and (VkPhotoTable.groupUrl eq groupUrl) }
                     .limit(100)
                     .toList()
             }
-            loggingData("vk_photos", vkPhotos)
+            loggingData("vk_photos", vkPhotos.map { it.toVkPhoto() })
             vkPhotos
         }
     }
 
-    private suspend fun VkGroupPhotoUrlsCrawlerContext.getPhotoUrl(vkPhoto: VkPhoto): String? {
+    private suspend fun VkGroupPhotoUrlsCrawlerContext.getPhotoUrl(vkPhoto: VkPhotoEntity): String? {
         return operationLogger.subOperationLog("get_photo_url", configure = {
-            loggingData("vk_photo", vkPhoto)
+            loggingData("vk_photo", vkPhoto.toVkPhoto())
         }) {
             try {
                 val photoUrl = vkGroupPhotoUrlGetter.getPhotoUrl(
@@ -79,9 +79,9 @@ class VkGroupPhotoUrlsCrawler(
         }
     }
 
-    private suspend fun VkGroupPhotoUrlsCrawlerContext.setErrorState(vkPhoto: VkPhoto) {
+    private suspend fun VkGroupPhotoUrlsCrawlerContext.setErrorState(vkPhoto: VkPhotoEntity) {
         operationLogger.subOperationLog("set_error_state", configure = {
-            loggingData("vk_photo", vkPhoto)
+            loggingData("vk_photo", vkPhoto.toVkPhoto())
         }) {
             transaction {
                 vkPhoto.state = VkPhotoState.PHOTO_URL_ERROR
@@ -89,9 +89,9 @@ class VkGroupPhotoUrlsCrawler(
         }
     }
 
-    private suspend fun VkGroupPhotoUrlsCrawlerContext.savePhotoUrl(vkPhoto: VkPhoto, photoUrl: String) {
+    private suspend fun VkGroupPhotoUrlsCrawlerContext.savePhotoUrl(vkPhoto: VkPhotoEntity, photoUrl: String) {
         operationLogger.subOperationLog("save_photo_url", configure = {
-            loggingData("vk_photo", vkPhoto)
+            loggingData("vk_photo", vkPhoto.toVkPhoto())
             loggingData("photo_url", photoUrl)
         }) {
             transaction {
