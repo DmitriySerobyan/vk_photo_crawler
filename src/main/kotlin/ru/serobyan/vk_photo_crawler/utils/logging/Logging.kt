@@ -6,44 +6,6 @@ import java.util.*
 
 suspend fun <T> log(
     operationName: String,
-    operation: suspend ILogger.() -> T
-): T {
-    return log(
-        operationName = operationName,
-        operationId = generateOperationId(),
-        configureLog = {},
-        operation = operation
-    )
-}
-
-suspend fun <T> log(
-    operationName: String,
-    configureLog: suspend LogSetting.() -> Unit,
-    operation: suspend ILogger.() -> T
-): T {
-    return log(
-        operationName = operationName,
-        operationId = generateOperationId(),
-        configureLog = configureLog,
-        operation = operation
-    )
-}
-
-suspend fun <T> log(
-    operationName: String,
-    operationId: String,
-    operation: suspend ILogger.() -> T
-): T {
-    return log(
-        operationName = operationName,
-        operationId = operationId,
-        configureLog = {},
-        operation = operation
-    )
-}
-
-suspend fun <T> log(
-    operationName: String,
     operationId: String = generateOperationId(),
     configureLog: suspend LogSetting.() -> Unit,
     operation: suspend ILogger.() -> T
