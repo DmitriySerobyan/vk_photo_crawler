@@ -1,4 +1,4 @@
-package ru.serobyan.vk_photo_crawler.service.vk
+package ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler
 
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.StringSpec

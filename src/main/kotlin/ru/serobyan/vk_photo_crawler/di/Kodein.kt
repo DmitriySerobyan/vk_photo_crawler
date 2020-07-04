@@ -26,8 +26,13 @@ import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.CapabilityType
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
-import ru.serobyan.vk_photo_crawler.service.CookieStorage
-import ru.serobyan.vk_photo_crawler.service.vk.*
+import ru.serobyan.vk_photo_crawler.service.vk.cookie.CookieStorage
+import ru.serobyan.vk_photo_crawler.service.vk.group.photo.downloader.VkPhotoDownloader
+import ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler.VkGroupPhotoIdsCrawler
+import ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler.VkGroupPhotoIdsGetter
+import ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler.VkGroupPhotoUrlGetter
+import ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler.VkGroupPhotoUrlsCrawler
+import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import java.net.Inet4Address
 import javax.sql.DataSource
 

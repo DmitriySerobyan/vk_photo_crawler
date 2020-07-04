@@ -7,7 +7,7 @@ import org.slf4j.event.Level
 class LoggingTest: StringSpec({
 
     "!:manual 1" {
-        operationLog("find", configureLog = { setAllLogLevel(Level.INFO) }) {
+        operationLog("find", configure = { setAllLogLevel(Level.INFO) }) {
             log()
             delay(1000L)
             loggingData("user", 222)

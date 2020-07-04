@@ -6,7 +6,7 @@ import java.util.*
 
 suspend fun <T> IOperationLogger.subOperationLog(
     operationName: String,
-    configureLog: suspend LogSetting.() -> Unit = {},
+    configure: suspend LogSetting.() -> Unit = {},
     operation: suspend IOperationLogger.() -> T
 ): T {
     val parentOperationLogger = this
@@ -15,7 +15,7 @@ suspend fun <T> IOperationLogger.subOperationLog(
     val setting = parentOperationLogger.logSetting.copy(
         logger = logger,
         initialContextData = parentOperationLogger.logContext.data
-    ).apply { configureLog() }
+    ).apply { configure() }
     val context = LogContext(
         operation = Operation(
             name = subOperationName,
@@ -32,11 +32,11 @@ suspend fun <T> IOperationLogger.subOperationLog(
 suspend fun <T> operationLog(
     operationName: String,
     operationId: String = generateOperationId(),
-    configureLog: suspend LogSetting.() -> Unit = {},
+    configure: suspend LogSetting.() -> Unit = {},
     operation: suspend IOperationLogger.() -> T
 ): T {
     val logger = LoggerFactory.getLogger(operationName)
-    val setting = LogSetting(logger = logger).apply { configureLog() }
+    val setting = LogSetting(logger = logger).apply { configure() }
     val context = LogContext(
         operation = Operation(
             name = operationName,

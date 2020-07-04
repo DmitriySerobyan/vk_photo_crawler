@@ -15,7 +15,7 @@ class ArgumentsParserTest: StringSpec({
             parsedArgs = Arguments(
                 setOf(AppCommand.CRAWL_PHOTO_URLS, AppCommand.DOWNLOAD_PHOTOS),
                 password = "myPassword",
-                vkGroupUrl = "https://vk.com/academicart",
+                groupUrl = "https://vk.com/academicart",
                 login = "myLogin"
             )
         )

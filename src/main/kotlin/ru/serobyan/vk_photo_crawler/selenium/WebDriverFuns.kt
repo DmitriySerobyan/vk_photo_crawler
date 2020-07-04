@@ -1,5 +1,6 @@
 package ru.serobyan.vk_photo_crawler.selenium
 
+import kotlinx.coroutines.runBlocking
 import org.openqa.selenium.By
 import org.openqa.selenium.JavascriptExecutor
 import org.openqa.selenium.WebDriver
@@ -13,9 +14,9 @@ fun WebDriver.getElement(selector: By, timeout: Long = Config.vkTimeout): WebEle
         .until(ExpectedConditions.presenceOfElementLocated(selector))
 }
 
-fun WebDriver.waitUntil(timeout: Long = Config.vkTimeout, checker: WebDriver.() -> Boolean) {
+fun WebDriver.waitUntil(timeout: Long = Config.vkTimeout, checker: suspend WebDriver.() -> Boolean) {
     WebDriverWait(this, timeout)
-        .until { checker() }
+        .until { runBlocking { checker() } }
 }
 
 fun WebDriver.waitUntilVisibility(selector: By, timeout: Long = Config.vkTimeout) {

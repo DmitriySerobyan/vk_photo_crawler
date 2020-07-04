@@ -22,6 +22,8 @@ enum class AppCommand(
     );
 
     companion object {
+        val default = values().toSet()
+
         fun fromConsoleCommand(consoleCommand: String): AppCommand {
             return values()
                 .firstOrNull { it.consoleCommand == consoleCommand.toLowerCase() }

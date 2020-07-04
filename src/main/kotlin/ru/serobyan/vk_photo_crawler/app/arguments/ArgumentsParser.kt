@@ -1,33 +1,32 @@
 package ru.serobyan.vk_photo_crawler.app.arguments
 
 import org.apache.commons.cli.*
+import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 
 object ArgumentsParser {
-    fun parse(args: Array<String>): Arguments {
-        try {
-            val cmd = parser.parse(options, args)
-            val commands: Set<AppCommand>? = parseCommands(cmd.getOptionValue(optionCommands))
-            val vkGroupUrl: String = cmd.getOptionValue(optionVkGroupUrl)
-            val login: String = cmd.getOptionValue(optionLogin)
-            val password: String = cmd.getOptionValue(optionPassword)
-            return Arguments(
-                commands = commands?.takeIf { it.isNotEmpty() } ?: AppCommand.values().toSet(),
-                vkGroupUrl = vkGroupUrl,
-                login = login,
-                password = password
-            )
-        } catch (e: ParseException) {
-            formatter.printHelp("vk_photo_crawler", options)
-            throw e
+    suspend fun parse(args: Array<String>): Arguments {
+        return operationLog("parse_cli_args") {
+            try {
+                loggingData("args", args)
+                val cmd = parser.parse(options, args)
+                val commands = parseCommands(cmd.getOptionValue(optionCommands))
+                val arguments = Arguments(
+                    commands = commands.takeIf { it.isNotEmpty() } ?: AppCommand.default,
+                    groupUrl = cmd.getOptionValue(optionVkGroupUrl),
+                    login = cmd.getOptionValue(optionLogin),
+                    password = cmd.getOptionValue(optionPassword)
+                )
+                loggingData("parsed_args", arguments)
+                arguments
+            } catch (e: ParseException) {
+                formatter.printHelp("vk_photo_crawler", options)
+                throw e
+            }
         }
     }
 
-    private fun parseCommands(commands: String?): Set<AppCommand>? {
-        return commands
-            ?.split("")
-            ?.filter { it.isNotBlank() }
-            ?.map { AppCommand.fromConsoleCommand(it) }
-            ?.toSet()
+    private fun parseCommands(commands: String?): Set<AppCommand> {
+        return commands?.map { AppCommand.fromConsoleCommand(it.toString()) }?.toSet() ?: setOf()
     }
 
     private val parser: CommandLineParser = DefaultParser()
