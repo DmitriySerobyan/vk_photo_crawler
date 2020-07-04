@@ -23,8 +23,7 @@ class VkGroupPhotoIdsGetter(
     suspend fun getPhotoIds(groupUrl: String): Flow<String> {
         return flow {
             driver.get(groupUrl)
-            val initialPostUrls =
-                VkPhotoIdsParser.parseGroupMainPage(html = driver.pageSource)
+            val initialPostUrls = VkPhotoIdsParser.parseGroupMainPage(html = driver.pageSource)
             initialPostUrls.forEach { emit(it) }
             try {
                 while (true) emitAll(getMorePhotoIds())
@@ -46,8 +45,7 @@ class VkGroupPhotoIdsGetter(
                 val response: String? = harEntry.response.content.text
                 if (response != null) {
                     val html = getHtmlResultFromMorePostResponse(response)
-                    val photoIds =
-                        VkPhotoIdsParser.parseMorePostResponse(html = html)
+                    val photoIds = VkPhotoIdsParser.parseMorePostResponse(html = html)
                     photoIds.forEach { emit(it) }
                 }
             }

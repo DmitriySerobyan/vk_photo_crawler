@@ -3,6 +3,7 @@ package ru.serobyan.vk_photo_crawler.service.vk
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.openqa.selenium.TimeoutException
 import ru.serobyan.vk_photo_crawler.model.VkPhoto
+import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 
 class VkGroupPhotoUrlsCrawler(
@@ -26,7 +27,7 @@ class VkGroupPhotoUrlsCrawler(
     private fun getVkPhotos(): List<VkPhoto> {
         return transaction {
             VkPhoto
-                .find { VkPhotoTable.photoUrl.isNull() }
+                .find { VkPhotoTable.state eq VkPhotoState.PHOTO_ID_SAVED }
                 .limit(100)
                 .toList()
         }
@@ -40,8 +41,12 @@ class VkGroupPhotoUrlsCrawler(
             )
             transaction {
                 vkPhoto.photoUrl = photoUrl
+                vkPhoto.state = VkPhotoState.PHOTO_URL_SAVED
             }
         } catch (_: TimeoutException) {
+            transaction {
+                vkPhoto.state = VkPhotoState.PHOTO_URL_ERROR
+            }
         }
     }
 }
