@@ -42,6 +42,7 @@ class VkGroupPhotoIdsCrawler(
     }
 
     private suspend fun VkGroupPhotoIdsCrawlerContext.saveVkPhotoIdAndGroupUrl(photoId: String) {
+        val context = this
         operationLogger.subOperationLog("save_vk_photo_id_and_group_url", configure = {
             loggingData("photo_id", photoId)
             loggingData("group_url", groupUrl)
@@ -50,7 +51,7 @@ class VkGroupPhotoIdsCrawler(
                 transaction {
                     VkPhotoEntity.new {
                         this.photoId = photoId
-                        this.groupUrl = groupUrl
+                        this.groupUrl = context.groupUrl
                         this.state = VkPhotoState.PHOTO_ID_SAVED
                     }
                 }
