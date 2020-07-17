@@ -1,7 +1,7 @@
 package ru.serobyan.vk_photo_crawler.app
 
 import net.lightbody.bmp.BrowserMobProxy
-import org.kodein.di.Kodein
+import org.kodein.di.DI
 import org.kodein.di.generic.instance
 import org.openqa.selenium.WebDriver
 import ru.serobyan.vk_photo_crawler.app.arguments.AppCommand
@@ -16,7 +16,7 @@ import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 
 class App(
     val arguments: Arguments,
-    val di: Kodein
+    val di: DI
 ) {
     suspend fun run() {
         operationLog("app_run") {

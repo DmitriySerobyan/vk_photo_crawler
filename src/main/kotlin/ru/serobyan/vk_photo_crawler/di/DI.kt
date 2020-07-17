@@ -15,11 +15,7 @@ import net.lightbody.bmp.util.HttpMessageInfo
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.kodein.di.Kodein
-import org.kodein.di.generic.bind
-import org.kodein.di.generic.eagerSingleton
-import org.kodein.di.generic.instance
-import org.kodein.di.generic.singleton
+import org.kodein.di.*
 import org.openqa.selenium.Proxy
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
@@ -36,7 +32,7 @@ import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import java.net.Inet4Address
 import javax.sql.DataSource
 
-val seleniumModule = Kodein.Module("selenium") {
+val seleniumModule = DI.Module("selenium") {
     bind<WebDriver>(tag = "proxy") with singleton {
         System.setProperty("webdriver.chrome.driver", Config.pathToChromeDriver)
         ChromeDriver(instance<ChromeOptions>(tag = "proxy"))
@@ -47,7 +43,7 @@ val seleniumModule = Kodein.Module("selenium") {
     }
 }
 
-val proxyModule = Kodein.Module("proxy") {
+val proxyModule = DI.Module("proxy") {
     bind<BrowserMobProxy>() with singleton {
         val proxy: BrowserMobProxy = BrowserMobProxyServer()
         proxy.addRequestFilter { request: HttpRequest, _: HttpMessageContents, _: HttpMessageInfo ->
@@ -79,11 +75,11 @@ val proxyModule = Kodein.Module("proxy") {
     }
 }
 
-val cookieStorageModule = Kodein.Module("cookie_storage") {
+val cookieStorageModule = DI.Module("cookie_storage") {
     bind<CookieStorage>() with singleton { CookieStorage() }
 }
 
-val downloadModule = Kodein.Module("download") {
+val downloadModule = DI.Module("download") {
     bind<VkPhotoDownloader>() with singleton {
         VkPhotoDownloader(
             photosDir = Config.photosDir
@@ -91,7 +87,7 @@ val downloadModule = Kodein.Module("download") {
     }
 }
 
-val dbModule = Kodein.Module("db") {
+val dbModule = DI.Module("db") {
     bind<HikariConfig>() with singleton {
         HikariConfig().apply {
             jdbcUrl = Config.jdbcUrl
@@ -107,7 +103,7 @@ val dbModule = Kodein.Module("db") {
     }
 }
 
-val kvModule = Kodein.Module("vk") {
+val kvModule = DI.Module("vk") {
     bind<VkGroupPhotoIdsCrawler>() with singleton {
         VkGroupPhotoIdsCrawler(
             vkLoginService = instance(tag = "proxy"),
@@ -145,7 +141,7 @@ val kvModule = Kodein.Module("vk") {
     }
 }
 
-val di = Kodein {
+val di = DI {
     import(seleniumModule)
     import(proxyModule)
     import(cookieStorageModule)

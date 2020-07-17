@@ -14,8 +14,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.google.code.gson", "gson", "2.8.6")
-    implementation("org.kodein.di", "kodein-di-core", "6.5.5")
-    implementation("org.kodein.di", "kodein-di-generic-jvm", "6.5.5")
+    implementation("org.kodein.di", "kodein-di", "7.0.0")
     implementation("net.lightbody.bmp", "browsermob-core", "2.1.5")
     implementation("org.jsoup", "jsoup", "1.13.1")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.7")
