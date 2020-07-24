@@ -30,7 +30,7 @@ class CookieStorage(
                 .readLines()
                 .map { cookie -> fromJSON<Cookie>(cookie) }
                 .toSet()
-            loggingData("cookies", cookies)
+            put("cookies", cookies)
             cookies
         }
     }

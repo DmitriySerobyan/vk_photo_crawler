@@ -36,7 +36,7 @@ class VkGroupPhotoIdsCrawler(
             )
             photoIds.collect { photoId ->
                 context.saveVkPhotoIdAndGroupUrl(photoId)
-                incrementCounter("crawled_photo_ids")
+                inc("crawled_photo_ids")
             }
         }
     }
@@ -56,7 +56,7 @@ class VkGroupPhotoIdsCrawler(
                     }
                 }
             } catch (_: ExposedSQLException) {
-                loggingData("already_saved", true)
+                put("already_saved", true)
                 log(Level.WARN, "already saved")
             }
         }

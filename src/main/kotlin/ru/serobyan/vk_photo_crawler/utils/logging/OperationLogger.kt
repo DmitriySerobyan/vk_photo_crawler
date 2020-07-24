@@ -5,20 +5,20 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
 class OperationLogger(
-    override val logSetting: LogSetting = LogSetting(),
-    override val logContext: LogContext = LogContext()
+    override val setting: OperationLoggerSetting = OperationLoggerSetting(),
+    override val context: OperationLoggerContext = OperationLoggerContext()
 ) : IOperationLogger {
     override fun log(message: String?) {
-        log(level = logSetting.executeLogLevel, message = message)
+        log(level = setting.executeLogLevel, message = message)
     }
 
     override fun log(level: Level, message: String?) {
-        logContext.time = Instant.now().epochSecond
-        val logMessage = LogMessage(
+        context.time = Instant.now().epochSecond
+        val logMessage = OperationLoggerMessage(
             message = message,
-            logContext = logContext
+            operationLoggerContext = context
         )
-        with(logSetting.logger) {
+        with(setting.logger) {
             when (level) {
                 Level.TRACE -> trace("{}", logMessage)
                 Level.DEBUG -> debug("{}", logMessage)
@@ -29,17 +29,17 @@ class OperationLogger(
         }
     }
 
-    override fun loggingData(key: String, value: Any?) {
-        logContext.data[key] = value
+    override fun put(key: String, value: Any?) {
+        context.data[key] = value
     }
 
-    override fun incrementCounter(key: String, value: Long) {
-        val atomic = logContext.counters[key]
+    override fun inc(key: String, value: Long) {
+        val atomic = context.counters[key]
         if (atomic != null) {
             atomic.addAndGet(value)
         } else {
-            logContext.counters.putIfAbsent(key, AtomicLong(0L))
-            logContext.counters[key]!!.addAndGet(value)
+            context.counters.putIfAbsent(key, AtomicLong(0L))
+            context.counters[key]!!.addAndGet(value)
         }
     }
 }

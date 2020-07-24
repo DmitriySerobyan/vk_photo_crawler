@@ -33,7 +33,7 @@ class VkLoginService(
         }) {
             driver.get(startUrl)
             val storageCookies = cookieStorage.read()
-            loggingData("storage_cookies", storageCookies)
+            put("storage_cookies", storageCookies)
             storageCookies.forEach { driver.manage().addCookie(it) }
         }
     }
@@ -47,7 +47,7 @@ class VkLoginService(
     private suspend fun VkLoginServiceContext.isLogin(): Boolean {
         return operationLogger.subOperationLog("is_login") {
             val isLogin = "Моя страница" in driver.pageSource
-            loggingData("is_login", isLogin)
+            put("is_login", isLogin)
             isLogin
         }
     }
@@ -66,7 +66,7 @@ class VkLoginService(
     private suspend fun VkLoginServiceContext.getFreshCookies(): Set<Cookie> {
         return operationLogger.subOperationLog("get_fresh_cookies") {
              val freshCookies = driver.manage().cookies
-            loggingData("fresh_cookies", freshCookies)
+            put("fresh_cookies", freshCookies)
             freshCookies
         }
     }

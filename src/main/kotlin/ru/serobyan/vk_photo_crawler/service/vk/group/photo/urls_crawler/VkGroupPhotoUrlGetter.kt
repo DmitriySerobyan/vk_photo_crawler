@@ -19,11 +19,11 @@ class VkGroupPhotoUrlGetter(
             loggingData("photo_id", context.photoId)
         }) {
             val postUrl = context.getPostUrlWithPhotoUrl()
-            loggingData("post_url", postUrl)
+            put("post_url", postUrl)
             driver.get(postUrl)
             val image = driver.getElement(imageBy)
             val photoUrl = image.getAttribute("src")
-            loggingData("photo_url", photoUrl)
+            put("photo_url", photoUrl)
             delay()
             photoUrl
         }
@@ -36,14 +36,14 @@ class VkGroupPhotoUrlGetter(
         }) {
             val postUrl = getPostUrlWithPhotoUrl()
             driver.get(postUrl)
-            loggingData("post_url", postUrl)
+            put("post_url", postUrl)
             val buttonMore = driver.getElement(buttonMoreBy)
             val actionsBuilder = Actions(driver)
             actionsBuilder.moveToElement(buttonMore).build().perform()
             driver.waitUntilVisibility(selector = linkOpenOriginalBy)
             val linkOpenOriginal = driver.getElement(linkOpenOriginalBy)
             val photoUrl = linkOpenOriginal.getAttribute("href")
-            loggingData("photo_url", photoUrl)
+            put("photo_url", photoUrl)
             delay()
             photoUrl
         }

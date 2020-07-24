@@ -34,7 +34,7 @@ class VkPhotoDownloader(
                     while (true) {
                         val vkPhotos = context.getVkPhotos()
                         if (vkPhotos.isEmpty()) break
-                        incrementCounter("read_vk_photos", vkPhotos.size.toLong())
+                        inc("read_vk_photos", vkPhotos.size.toLong())
                         vkPhotos.forEach { send(it) }
                     }
                 }
@@ -43,7 +43,7 @@ class VkPhotoDownloader(
                         for (vkPhoto in vkPhotos) {
                             context.savePhotoInFile(url = vkPhoto.photoUrl!!)
                             context.markDownloaded(vkPhoto = vkPhoto)
-                            incrementCounter("saved_vk_photos")
+                            inc("saved_vk_photos")
                         }
                     }
                 }
@@ -59,7 +59,7 @@ class VkPhotoDownloader(
                     .limit(1000)
                     .toList()
             }
-            loggingData("vk_photos", vkPhotos.map { it.toVkPhoto() })
+            put("vk_photos", vkPhotos.map { it.toVkPhoto() })
             vkPhotos
         }
     }
@@ -70,7 +70,7 @@ class VkPhotoDownloader(
         }) {
             val photoContent = getPhotoContent(url = url)
             val photoFileName = FilenameUtils.getName(URL(url).path)
-            loggingData("photo_file_name", photoFileName)
+            put("photo_file_name", photoFileName)
             val file = File(photosDir, photoFileName)
             file.writeBytes(photoContent)
         }

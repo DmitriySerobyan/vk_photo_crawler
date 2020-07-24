@@ -7,7 +7,7 @@ object ArgumentsParser {
     suspend fun parse(args: Array<String>): Arguments {
         return operationLog("parse_cli_args") {
             try {
-                loggingData("args", args)
+                put("args", args)
                 val cmd = parser.parse(options, args)
                 val commands = parseCommands(cmd.getOptionValue(optionCommands))
                 val arguments = Arguments(
@@ -16,7 +16,7 @@ object ArgumentsParser {
                     login = cmd.getOptionValue(optionLogin),
                     password = cmd.getOptionValue(optionPassword)
                 )
-                loggingData("parsed_args", arguments)
+                put("parsed_args", arguments)
                 arguments
             } catch (e: ParseException) {
                 formatter.printHelp("vk_photo_crawler", options)

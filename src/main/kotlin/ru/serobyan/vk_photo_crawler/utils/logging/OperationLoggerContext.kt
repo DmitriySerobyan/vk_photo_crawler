@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
-data class LogContext(
+data class OperationLoggerContext(
     val operation: Operation = Operation(),
     val data: MutableMap<String, Any?> = ConcurrentHashMap(),
     val counters: MutableMap<String, AtomicLong> = ConcurrentHashMap(),

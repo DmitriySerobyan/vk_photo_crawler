@@ -4,8 +4,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
-data class LogSetting(
-    val logger: Logger = LoggerFactory.getLogger(LogSetting::class.java),
+data class OperationLoggerSetting(
+    val logger: Logger = LoggerFactory.getLogger(OperationLoggerSetting::class.java),
     var startLogLevel: Level = Level.DEBUG,
     var executeLogLevel: Level = Level.TRACE,
     var endLogLevel: Level = Level.DEBUG,

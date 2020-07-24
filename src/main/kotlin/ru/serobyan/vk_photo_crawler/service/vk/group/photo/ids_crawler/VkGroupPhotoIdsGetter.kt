@@ -27,13 +27,13 @@ class VkGroupPhotoIdsGetter(
             flow {
                 driver.get(context.groupUrl)
                 val initialPostIds = VkPhotoIdsParser.parseGroupMainPage(html = driver.pageSource)
-                loggingData("initial_post_ids", initialPostIds)
+                put("initial_post_ids", initialPostIds)
                 initialPostIds.forEach { emit(it) }
                 log()
                 try {
                     while (true) emitAll(context.getMorePhotoIds())
                 } catch (e: TimeoutException) {
-                    loggingData("no_more_posts", true)
+                    put("no_more_posts", true)
                     log("Can't get more posts")
                     driver.alert("Can't get more posts")
                     delay(5_000L)
@@ -57,7 +57,7 @@ class VkGroupPhotoIdsGetter(
                             VkPhotoIdsParser.parseMorePostResponse(
                                 html = html
                             )
-                        loggingData("photo_ids", photoIds)
+                        put("photo_ids", photoIds)
                         photoIds.forEach { emit(it) }
                     }
                 }
@@ -79,7 +79,7 @@ class VkGroupPhotoIdsGetter(
         return operationLogger.subOperationLog("get_html_result_from_more_post_response") {
             val jsonElement = fromJSON<JsonElement>(response)
             val html = jsonElement.asJsonObject["payload"].asJsonArray[1].asJsonArray[0].asString
-            loggingData("html", html)
+            put("html", html)
             html
         }
     }

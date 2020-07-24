@@ -10,10 +10,10 @@ class LoggingTest: StringSpec({
         operationLog("find", configure = { setAllLogLevel(Level.INFO) }) {
             log()
             delay(1000L)
-            loggingData("user", 222)
+            put("user", 222)
             subOperationLog("notify") {
                 delay(1000L)
-                loggingData("alert", 555)
+                put("alert", 555)
             }
             log()
         }

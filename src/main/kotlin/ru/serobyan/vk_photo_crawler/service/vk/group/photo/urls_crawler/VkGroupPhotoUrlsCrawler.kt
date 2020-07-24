@@ -52,7 +52,7 @@ class VkGroupPhotoUrlsCrawler(
                     .limit(100)
                     .toList()
             }
-            loggingData("vk_photos", vkPhotos.map { it.toVkPhoto() })
+            put("vk_photos", vkPhotos.map { it.toVkPhoto() })
             vkPhotos
         }
     }
@@ -69,10 +69,10 @@ class VkGroupPhotoUrlsCrawler(
                         photoId = vkPhoto.photoId
                     )
                 )
-                loggingData("photo_url", photoUrl)
+                put("photo_url", photoUrl)
                 photoUrl
             } catch (_: TimeoutException) {
-                loggingData("photo_url_received", true)
+                put("photo_url_received", true)
                 log(Level.WARN, "failed to get photo_url")
                 null
             }
