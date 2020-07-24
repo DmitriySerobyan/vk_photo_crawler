@@ -1,7 +1,6 @@
 package ru.serobyan.vk_photo_crawler.utils.logging
 
 import org.slf4j.event.Level
-import ru.serobyan.vk_photo_crawler.utils.json.Json
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
@@ -15,14 +14,17 @@ class OperationLogger(
 
     override fun log(level: Level, message: String?) {
         logContext.time = Instant.now().epochSecond
-        val logText = if (message != null) "$message ${Json.toJson(logContext)}" else Json.toJson(logContext)
+        val logMessage = LogMessage(
+            message = message,
+            logContext = logContext
+        )
         with(logSetting.logger) {
             when (level) {
-                Level.TRACE -> trace(logText)
-                Level.DEBUG -> debug(logText)
-                Level.INFO -> info(logText)
-                Level.WARN -> warn(logText)
-                Level.ERROR -> error(logText)
+                Level.TRACE -> trace("{}", logMessage)
+                Level.DEBUG -> debug("{}", logMessage)
+                Level.INFO -> info("{}", logMessage)
+                Level.WARN -> warn("{}", logMessage)
+                Level.ERROR -> error("{}", logMessage)
             }
         }
     }

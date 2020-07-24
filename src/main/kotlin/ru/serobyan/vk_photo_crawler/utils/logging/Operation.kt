@@ -14,7 +14,7 @@ data class Operation(
     fun executionIsOver() {
         end_time = Instant.now().epochSecond
         if (end_time != null && start_time != null) {
-            execution_time = end_time!! - start_time!!
+            execution_time = end_time!! - start_time
         }
     }
 }

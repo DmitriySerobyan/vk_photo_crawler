@@ -13,7 +13,7 @@ import ru.serobyan.vk_photo_crawler.selenium.alert
 import ru.serobyan.vk_photo_crawler.selenium.proxy.getHarEntryByUrl
 import ru.serobyan.vk_photo_crawler.selenium.scrollBy
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
-import ru.serobyan.vk_photo_crawler.utils.json.Json
+import ru.serobyan.vk_photo_crawler.utils.json.fromJSON
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
 
 class VkGroupPhotoIdsGetter(
@@ -77,7 +77,7 @@ class VkGroupPhotoIdsGetter(
 
     private suspend fun VkGroupPhotoIdsGetterContext.getHtmlResultFromMorePostResponse(response: String): String {
         return operationLogger.subOperationLog("get_html_result_from_more_post_response") {
-            val jsonElement = Json.fromJson<JsonElement>(response)
+            val jsonElement = fromJSON<JsonElement>(response)
             val html = jsonElement.asJsonObject["payload"].asJsonArray[1].asJsonArray[0].asString
             loggingData("html", html)
             html
