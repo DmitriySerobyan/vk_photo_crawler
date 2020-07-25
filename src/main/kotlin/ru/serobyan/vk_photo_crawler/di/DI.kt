@@ -147,7 +147,10 @@ val appModule = DI.Module("app") {
         App(
             vkGroupPhotoIdsCrawler = instance(),
             vkGroupPhotoUrlsCrawler = instance(),
-            vkPhotoDownloader = instance()
+            vkPhotoDownloader = instance(),
+            driverWithProxy = instance(tag = "no-proxy"),
+            driver = instance(tag = "proxy"),
+            proxy = instance()
         )
     }
 }

@@ -8,12 +8,11 @@ import ru.serobyan.vk_photo_crawler.di.Config
 import ru.serobyan.vk_photo_crawler.selenium.getElement
 import ru.serobyan.vk_photo_crawler.selenium.waitUntilVisibility
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
-import java.io.Closeable
 import kotlin.random.Random
 
 class VkGroupPhotoUrlGetter(
     private val driver: WebDriver
-): Closeable {
+) {
     suspend fun getPhotoUrl(context: VkGroupPhotoUrlGetterContext): String {
         return context.operationLogger.subOperationLog("get_vk_group_photo_url", configure = {
             put("group_url", context.groupUrl)
@@ -61,10 +60,6 @@ class VkGroupPhotoUrlGetter(
                 until = Config.maxDelayBetweenOpenPhotoPost
             )
         )
-    }
-
-    override fun close() {
-        driver.close()
     }
 
     companion object {

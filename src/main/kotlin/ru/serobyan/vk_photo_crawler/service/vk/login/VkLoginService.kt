@@ -7,12 +7,11 @@ import ru.serobyan.vk_photo_crawler.selenium.getElement
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
 import ru.serobyan.vk_photo_crawler.service.vk.cookie.CookieStorage
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
-import java.io.Closeable
 
 class VkLoginService(
     private val driver: WebDriver,
     private val cookieStorage: CookieStorage
-) : Closeable {
+) {
     suspend fun login(context: VkLoginServiceContext) {
         context.operationLogger.subOperationLog("login", configure = {
             put("login", context.login)
@@ -70,10 +69,6 @@ class VkLoginService(
             put("fresh_cookies", freshCookies)
             freshCookies
         }
-    }
-
-    override fun close() {
-        driver.close()
     }
 
     companion object {

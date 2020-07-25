@@ -1,5 +1,7 @@
 package ru.serobyan.vk_photo_crawler.app
 
+import net.lightbody.bmp.BrowserMobProxy
+import org.openqa.selenium.WebDriver
 import ru.serobyan.vk_photo_crawler.app.arguments.AppCommand
 import ru.serobyan.vk_photo_crawler.app.arguments.Arguments
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.downloader.VkPhotoDownloader
@@ -14,7 +16,10 @@ import java.io.Closeable
 class App(
     private val vkGroupPhotoIdsCrawler: VkGroupPhotoIdsCrawler,
     private val vkGroupPhotoUrlsCrawler: VkGroupPhotoUrlsCrawler,
-    private val vkPhotoDownloader: VkPhotoDownloader
+    private val vkPhotoDownloader: VkPhotoDownloader,
+    private val driverWithProxy: WebDriver,
+    private val driver: WebDriver,
+    private val proxy: BrowserMobProxy
 ) : Closeable {
     suspend fun run(arguments: Arguments) {
         operationLog("app_run") {
@@ -44,7 +49,8 @@ class App(
     }
 
     override fun close() {
-        vkGroupPhotoIdsCrawler.close()
-        vkGroupPhotoUrlsCrawler.close()
+        driverWithProxy.quit()
+        driver.quit()
+        proxy.stop()
     }
 }
