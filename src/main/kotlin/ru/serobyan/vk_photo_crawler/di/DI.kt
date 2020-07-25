@@ -21,6 +21,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.CapabilityType
+import ru.serobyan.vk_photo_crawler.app.App
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 import ru.serobyan.vk_photo_crawler.service.vk.cookie.CookieStorage
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.downloader.VkPhotoDownloader
@@ -141,6 +142,16 @@ val kvModule = DI.Module("vk") {
     }
 }
 
+val appModule = DI.Module("app") {
+    bind<App>() with singleton {
+        App(
+            vkGroupPhotoIdsCrawler = instance(),
+            vkGroupPhotoUrlsCrawler = instance(),
+            vkPhotoDownloader = instance()
+        )
+    }
+}
+
 val di = DI {
     import(seleniumModule)
     import(proxyModule)
@@ -148,4 +159,5 @@ val di = DI {
     import(kvModule)
     import(dbModule)
     import(downloadModule)
+    import(appModule)
 }

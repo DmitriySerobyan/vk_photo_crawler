@@ -11,11 +11,12 @@ import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginServiceContext
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import java.io.Closeable
 
 class VkGroupPhotoUrlsCrawler(
     private val vkLoginService: VkLoginService,
     private val vkGroupPhotoUrlGetter: VkGroupPhotoUrlGetter
-) {
+): Closeable {
     suspend fun crawlPhotoUrls(context: VkGroupPhotoUrlsCrawlerContext) {
         operationLog("crawl_vk_group_photo_urls", configure = {
             put("login", context.login)
@@ -99,5 +100,10 @@ class VkGroupPhotoUrlsCrawler(
                 vkPhoto.state = VkPhotoState.PHOTO_URL_SAVED
             }
         }
+    }
+
+    override fun close() {
+        vkLoginService.close()
+        vkGroupPhotoUrlGetter.close()
     }
 }

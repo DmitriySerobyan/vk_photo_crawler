@@ -10,11 +10,12 @@ import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginServiceContext
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import java.io.Closeable
 
 class VkGroupPhotoIdsCrawler(
     private val vkLoginService: VkLoginService,
     private val vkGroupPhotoIdsGetter: VkGroupPhotoIdsGetter
-) {
+): Closeable {
     suspend fun crawlPhotoIds(context: VkGroupPhotoIdsCrawlerContext) {
         operationLog("crawl_vk_group_photo_ids", configure = {
             put("login", context.login)
@@ -60,5 +61,10 @@ class VkGroupPhotoIdsCrawler(
                 log(Level.WARN, "already saved")
             }
         }
+    }
+
+    override fun close() {
+        vkLoginService.close()
+        vkGroupPhotoIdsGetter.close()
     }
 }

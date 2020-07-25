@@ -16,6 +16,7 @@ import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import java.io.Closeable
 import java.io.File
 import java.net.URL
 

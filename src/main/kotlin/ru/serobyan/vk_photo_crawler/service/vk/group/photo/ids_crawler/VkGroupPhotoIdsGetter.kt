@@ -15,11 +15,12 @@ import ru.serobyan.vk_photo_crawler.selenium.scrollBy
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
 import ru.serobyan.vk_photo_crawler.utils.json.fromJSON
 import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import java.io.Closeable
 
 class VkGroupPhotoIdsGetter(
     private val driver: WebDriver,
     private val proxy: BrowserMobProxy
-) {
+): Closeable {
     suspend fun getPhotoIds(context: VkGroupPhotoIdsGetterContext): Flow<String> {
         return context.operationLogger.subOperationLog("get_vk_group_photo_ids", configure = {
             put("group_url", context.groupUrl)
@@ -82,5 +83,10 @@ class VkGroupPhotoIdsGetter(
             put("html", html)
             html
         }
+    }
+
+    override fun close() {
+        driver.close()
+        proxy.stop()
     }
 }
