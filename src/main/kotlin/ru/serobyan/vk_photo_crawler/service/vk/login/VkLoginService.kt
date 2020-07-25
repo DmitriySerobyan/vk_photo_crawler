@@ -14,7 +14,7 @@ class VkLoginService(
 ) {
     suspend fun login(context: VkLoginServiceContext) {
         context.operationLogger.subOperationLog("login", configure = {
-            loggingData("login", context.login)
+            put("login", context.login)
         }) {
             context.setCookiesFromStorage()
             context.goToMainPage()
@@ -29,7 +29,7 @@ class VkLoginService(
 
     private suspend fun VkLoginServiceContext.setCookiesFromStorage() {
         operationLogger.subOperationLog("set_cookies_from_storage", configure = {
-            loggingData("start_url", startUrl)
+            put("start_url", startUrl)
         }) {
             driver.get(startUrl)
             val storageCookies = cookieStorage.read()

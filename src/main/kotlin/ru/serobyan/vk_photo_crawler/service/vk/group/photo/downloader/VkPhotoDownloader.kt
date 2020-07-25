@@ -25,8 +25,8 @@ class VkPhotoDownloader(
 ) {
     suspend fun downloadPhotos(context: VkPhotoDownloaderContext) {
         operationLog("download_photos", configure = {
-            loggingData("photos_dir", photosDir)
-            loggingData("parallel_photo_download_count", parallelPhotoDownloadCount)
+            put("photos_dir", photosDir)
+            put("parallel_photo_download_count", parallelPhotoDownloadCount)
         }) {
             context.operationLogger = this
             runBlocking(Dispatchers.IO) {
@@ -66,7 +66,7 @@ class VkPhotoDownloader(
 
     private suspend fun VkPhotoDownloaderContext.savePhotoInFile(url: String) {
         operationLogger.subOperationLog("save_photo_in_file", configure = {
-            loggingData("url", url)
+            put("url", url)
         }) {
             val photoContent = getPhotoContent(url = url)
             val photoFileName = FilenameUtils.getName(URL(url).path)
@@ -86,7 +86,7 @@ class VkPhotoDownloader(
 
     private suspend fun VkPhotoDownloaderContext.getPhotoContent(url: String): ByteArray {
         return operationLogger.subOperationLog("get_photo_content", configure = {
-            loggingData("url", url)
+            put("url", url)
         }) {
             createClient().use { client -> client.get<ByteArray>(url) }
         }

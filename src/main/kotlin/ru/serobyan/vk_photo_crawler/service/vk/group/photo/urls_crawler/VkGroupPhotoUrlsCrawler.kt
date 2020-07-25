@@ -18,8 +18,8 @@ class VkGroupPhotoUrlsCrawler(
 ) {
     suspend fun crawlPhotoUrls(context: VkGroupPhotoUrlsCrawlerContext) {
         operationLog("crawl_vk_group_photo_urls", configure = {
-            loggingData("login", context.login)
-            loggingData("group_url", context.groupUrl)
+            put("login", context.login)
+            put("group_url", context.groupUrl)
         }) {
             context.operationLogger = this
             vkLoginService.login(
@@ -59,7 +59,7 @@ class VkGroupPhotoUrlsCrawler(
 
     private suspend fun VkGroupPhotoUrlsCrawlerContext.getPhotoUrl(vkPhoto: VkPhotoEntity): String? {
         return operationLogger.subOperationLog("get_photo_url", configure = {
-            loggingData("vk_photo", vkPhoto.toVkPhoto())
+            put("vk_photo", vkPhoto.toVkPhoto())
         }) {
             try {
                 val photoUrl = vkGroupPhotoUrlGetter.getPhotoUrl(
@@ -81,7 +81,7 @@ class VkGroupPhotoUrlsCrawler(
 
     private suspend fun VkGroupPhotoUrlsCrawlerContext.setErrorState(vkPhoto: VkPhotoEntity) {
         operationLogger.subOperationLog("set_error_state", configure = {
-            loggingData("vk_photo", vkPhoto.toVkPhoto())
+            put("vk_photo", vkPhoto.toVkPhoto())
         }) {
             transaction {
                 vkPhoto.state = VkPhotoState.PHOTO_URL_ERROR
@@ -91,8 +91,8 @@ class VkGroupPhotoUrlsCrawler(
 
     private suspend fun VkGroupPhotoUrlsCrawlerContext.savePhotoUrl(vkPhoto: VkPhotoEntity, photoUrl: String) {
         operationLogger.subOperationLog("save_photo_url", configure = {
-            loggingData("vk_photo", vkPhoto.toVkPhoto())
-            loggingData("photo_url", photoUrl)
+            put("vk_photo", vkPhoto.toVkPhoto())
+            put("photo_url", photoUrl)
         }) {
             transaction {
                 vkPhoto.photoUrl = photoUrl

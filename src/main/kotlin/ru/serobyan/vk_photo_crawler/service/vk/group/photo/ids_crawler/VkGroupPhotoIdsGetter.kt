@@ -22,7 +22,7 @@ class VkGroupPhotoIdsGetter(
 ) {
     suspend fun getPhotoIds(context: VkGroupPhotoIdsGetterContext): Flow<String> {
         return context.operationLogger.subOperationLog("get_vk_group_photo_ids", configure = {
-            loggingData("group_url", context.groupUrl)
+            put("group_url", context.groupUrl)
         }) {
             flow {
                 driver.get(context.groupUrl)

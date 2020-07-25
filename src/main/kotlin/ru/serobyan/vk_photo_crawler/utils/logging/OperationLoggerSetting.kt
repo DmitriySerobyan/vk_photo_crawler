@@ -18,7 +18,7 @@ data class OperationLoggerSetting(
         endLogLevel = level
     }
 
-    fun loggingData(key: String, value: Any?) {
+    fun put(key: String, value: Any?) {
         initialContextData[key] = value
     }
 }

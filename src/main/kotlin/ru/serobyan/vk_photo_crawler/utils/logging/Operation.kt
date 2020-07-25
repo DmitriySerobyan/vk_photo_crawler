@@ -6,15 +6,32 @@ data class Operation(
     val name: String? = null,
     val id: String? = null,
     var state: OperationState? = null,
-    val start_time: Long? = null,
+    var start_time: Long? = null,
     var end_time: Long? = null,
     var execution_time: Long? = null,
     var exception: Throwable? = null
 ) {
-    fun executionIsOver() {
+    fun start() {
+        start_time = Instant.now().epochSecond
+        state = OperationState.START
+    }
+
+    fun execute() {
+        state = OperationState.EXECUTE
+    }
+
+    fun end() {
+        state = OperationState.END
+        operationIsOver()
+    }
+
+    fun exception(e: Throwable) {
+        state = OperationState.EXCEPTION
+        operationIsOver()
+    }
+
+    private fun operationIsOver() {
         end_time = Instant.now().epochSecond
-        if (end_time != null && start_time != null) {
-            execution_time = end_time!! - start_time
-        }
+        execution_time = end_time!! - start_time!!
     }
 }

@@ -17,8 +17,8 @@ class VkGroupPhotoIdsCrawler(
 ) {
     suspend fun crawlPhotoIds(context: VkGroupPhotoIdsCrawlerContext) {
         operationLog("crawl_vk_group_photo_ids", configure = {
-            loggingData("login", context.login)
-            loggingData("group_url", context.groupUrl)
+            put("login", context.login)
+            put("group_url", context.groupUrl)
         }) {
             context.operationLogger = this
             vkLoginService.login(
@@ -44,8 +44,8 @@ class VkGroupPhotoIdsCrawler(
     private suspend fun VkGroupPhotoIdsCrawlerContext.saveVkPhotoIdAndGroupUrl(photoId: String) {
         val context = this
         operationLogger.subOperationLog("save_vk_photo_id_and_group_url", configure = {
-            loggingData("photo_id", photoId)
-            loggingData("group_url", groupUrl)
+            put("photo_id", photoId)
+            put("group_url", groupUrl)
         }) {
             try {
                 transaction {

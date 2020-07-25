@@ -11,8 +11,8 @@ class CookieStorage(
 ) {
     suspend fun save(cookies: Set<Cookie>) {
         operationLog("cookie_storage_save", configure = {
-            loggingData("path_to_cookie_storage_file", pathToCookieStorageFile)
-            loggingData("cookies", cookies)
+            put("path_to_cookie_storage_file", pathToCookieStorageFile)
+            put("cookies", cookies)
         }) {
             val file = File(pathToCookieStorageFile)
             val content = cookies.joinToString("\n") { it.toJSON() }
@@ -22,7 +22,7 @@ class CookieStorage(
 
     suspend fun read(): Set<Cookie> {
         return operationLog("cookie_storage_read", configure = {
-            loggingData("path_to_cookie_storage_file", pathToCookieStorageFile)
+            put("path_to_cookie_storage_file", pathToCookieStorageFile)
         }) {
             val file = File(pathToCookieStorageFile)
             if (!file.exists()) file.createNewFile()

@@ -15,8 +15,8 @@ class VkGroupPhotoUrlGetter(
 ) {
     suspend fun getPhotoUrl(context: VkGroupPhotoUrlGetterContext): String {
         return context.operationLogger.subOperationLog("get_vk_group_photo_url", configure = {
-            loggingData("group_url", context.groupUrl)
-            loggingData("photo_id", context.photoId)
+            put("group_url", context.groupUrl)
+            put("photo_id", context.photoId)
         }) {
             val postUrl = context.getPostUrlWithPhotoUrl()
             put("post_url", postUrl)
@@ -31,8 +31,8 @@ class VkGroupPhotoUrlGetter(
 
     private suspend fun VkGroupPhotoUrlGetterContext.getPhotoUrlFromOpenOriginalButton(): String {
         return operationLogger.subOperationLog("get_photo_url_from_open_original_button", configure = {
-            loggingData("group_url", groupUrl)
-            loggingData("photo_id", photoId)
+            put("group_url", groupUrl)
+            put("photo_id", photoId)
         }) {
             val postUrl = getPostUrlWithPhotoUrl()
             driver.get(postUrl)

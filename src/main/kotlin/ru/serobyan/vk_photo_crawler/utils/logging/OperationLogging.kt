@@ -4,6 +4,26 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
+suspend fun <T> operationLog(
+    operationName: String,
+    operationId: String = generateOperationId(),
+    configure: suspend OperationLoggerSetting.() -> Unit = {},
+    operation: suspend IOperationLogger.() -> T
+): T {
+    val logger = LoggerFactory.getLogger(operationName)
+    val setting = OperationLoggerSetting(logger = logger).apply { configure() }
+    val context = OperationLoggerContext(
+        operation = Operation(
+            name = operationName,
+            id = operationId,
+            state = OperationState.START
+        ),
+        data = setting.initialContextData.toMutableMap()
+    )
+    val operationLogger: IOperationLogger = OperationLogger(setting = setting, context = context)
+    return operationLogger.runOperation(operation)
+}
+
 suspend fun <T> IOperationLogger.subOperationLog(
     operationName: String,
     configure: suspend OperationLoggerSetting.() -> Unit = {},
@@ -20,34 +40,12 @@ suspend fun <T> IOperationLogger.subOperationLog(
         operation = Operation(
             name = subOperationName,
             id = parentOperationLogger.context.operation.id,
-            state = OperationState.START,
-            start_time = Instant.now().epochSecond
+            state = OperationState.START
         ),
         data = setting.initialContextData.toMutableMap()
     )
-    val operationOperationLogger: IOperationLogger = OperationLogger(setting = setting, context = context)
-    return operationOperationLogger.runOperation(operation)
-}
-
-suspend fun <T> operationLog(
-    operationName: String,
-    operationId: String = generateOperationId(),
-    configure: suspend OperationLoggerSetting.() -> Unit = {},
-    operation: suspend IOperationLogger.() -> T
-): T {
-    val logger = LoggerFactory.getLogger(operationName)
-    val setting = OperationLoggerSetting(logger = logger).apply { configure() }
-    val context = OperationLoggerContext(
-        operation = Operation(
-            name = operationName,
-            id = operationId,
-            state = OperationState.START,
-            start_time = Instant.now().epochSecond
-        ),
-        data = setting.initialContextData.toMutableMap()
-    )
-    val operationOperationLogger: IOperationLogger = OperationLogger(setting = setting, context = context)
-    return operationOperationLogger.runOperation(operation)
+    val operationLogger: IOperationLogger = OperationLogger(setting = setting, context = context)
+    return operationLogger.runOperation(operation)
 }
 
 private fun generateOperationId(): String {
@@ -56,18 +54,16 @@ private fun generateOperationId(): String {
 
 private suspend fun <T> IOperationLogger.runOperation(operation: suspend IOperationLogger.() -> T): T {
     val result: T
-    log(level = setting.startLogLevel)
+    context.operation.start()
+    log()
     try {
-        context.operation.state = OperationState.EXECUTE
+        context.operation.execute()
         result = operation()
-        context.operation.executionIsOver()
-        context.operation.state = OperationState.END
-        log(level = setting.endLogLevel)
+        context.operation.end()
+        log()
     } catch (e: Throwable) {
-        context.operation.executionIsOver()
-        context.operation.exception = e
-        context.operation.state = OperationState.EXCEPTION
-        log(level = setting.exceptionLogLevel)
+        context.operation.exception(e)
+        log()
         throw e
     }
     return result
