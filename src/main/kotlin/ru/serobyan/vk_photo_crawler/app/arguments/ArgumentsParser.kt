@@ -1,13 +1,14 @@
 package ru.serobyan.vk_photo_crawler.app.arguments
 
 import org.apache.commons.cli.*
+import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 
 object ArgumentsParser {
-    suspend fun parse(args: Array<String>): Arguments {
-        return operationLog("parse_cli_args") {
+    suspend fun parse(logger: IOperationLogger, args: Array<String>): Arguments {
+        return logger.operationLog("parse_cli_args") { subLogger ->
             try {
-                put("args", args)
+                subLogger.put("args", args)
                 val cmd = parser.parse(options, args)
                 val commands = parseCommands(cmd.getOptionValue(optionCommands))
                 val arguments = Arguments(
@@ -16,7 +17,7 @@ object ArgumentsParser {
                     login = cmd.getOptionValue(optionLogin),
                     password = cmd.getOptionValue(optionPassword)
                 )
-                put("parsed_args", arguments)
+                subLogger.put("parsed_args", arguments)
                 arguments
             } catch (e: ParseException) {
                 formatter.printHelp("vk_photo_crawler", options)

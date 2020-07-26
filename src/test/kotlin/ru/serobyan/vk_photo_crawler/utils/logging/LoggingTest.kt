@@ -3,19 +3,26 @@ package ru.serobyan.vk_photo_crawler.utils.logging
 import io.kotest.core.spec.style.StringSpec
 import kotlinx.coroutines.delay
 import org.slf4j.event.Level
+import java.lang.IllegalStateException
 
 class LoggingTest: StringSpec({
 
     "!:manual 1" {
-        operationLog("find", configure = { setAllLogLevel(Level.INFO) }) {
-            log()
+        operationLog("find", configure = { setAllLogLevel(Level.INFO) }) { parentLogger ->
+            parentLogger.log()
             delay(1000L)
-            put("user", 222)
-            subOperationLog("notify") {
+            parentLogger.put("user", 222)
+            parentLogger.operationLog("notify") {logger ->
                 delay(1000L)
-                put("alert", 555)
+                logger.put("alert", 555)
+                logger.log()
             }
-            log()
+            try {
+                parentLogger.operationLog("error") {
+                    throw IllegalStateException()
+                }
+            } catch (_: IllegalStateException) {}
+            parentLogger.log()
         }
     }
 

@@ -9,7 +9,9 @@ data class Operation(
     var start_time: Long? = null,
     var end_time: Long? = null,
     var execution_time: Long? = null,
-    var exception: Throwable? = null
+    @Transient
+    var exception: Throwable? = null,
+    var error_description: String? = null
 ) {
     fun start() {
         start_time = Instant.now().epochSecond
@@ -26,6 +28,8 @@ data class Operation(
     }
 
     fun exception(e: Throwable) {
+        exception = e
+        error_description = e.toString()
         state = OperationState.EXCEPTION
         operationIsOver()
     }

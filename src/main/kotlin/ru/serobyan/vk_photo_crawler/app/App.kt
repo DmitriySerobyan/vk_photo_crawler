@@ -10,6 +10,7 @@ import ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler.VkGroupPh
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler.VkGroupPhotoIdsCrawlerContext
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler.VkGroupPhotoUrlsCrawler
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler.VkGroupPhotoUrlsCrawlerContext
+import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 import java.io.Closeable
 
@@ -21,8 +22,11 @@ class App(
     private val driver: WebDriver,
     private val proxy: BrowserMobProxy
 ) : Closeable {
-    suspend fun run(arguments: Arguments) {
-        operationLog("app_run") {
+    suspend fun run(
+        logger: IOperationLogger,
+        arguments: Arguments
+    ) {
+        logger.operationLog("app.run") { subLogger ->
             arguments.commands
                 .sortedBy { it.priority }
                 .forEach { command ->
@@ -31,18 +35,24 @@ class App(
                             VkGroupPhotoIdsCrawlerContext(
                                 groupUrl = arguments.groupUrl,
                                 login = arguments.login,
-                                password = arguments.password
+                                password = arguments.password,
+                                logger = subLogger
                             )
                         )
                         AppCommand.CRAWL_PHOTO_URLS -> vkGroupPhotoUrlsCrawler.crawlPhotoUrls(
                             VkGroupPhotoUrlsCrawlerContext(
                                 login = arguments.login,
                                 password = arguments.password,
-                                groupUrl = arguments.groupUrl
+                                groupUrl = arguments.groupUrl,
+                                logger = subLogger
                             )
                         )
                         AppCommand.DOWNLOAD_PHOTOS ->
-                            vkPhotoDownloader.downloadPhotos(VkPhotoDownloaderContext())
+                            vkPhotoDownloader.downloadPhotos(
+                                VkPhotoDownloaderContext(
+                                    logger = subLogger
+                                )
+                            )
                     }
                 }
         }

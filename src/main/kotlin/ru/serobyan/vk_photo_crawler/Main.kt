@@ -10,10 +10,10 @@ import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 
 fun main(args: Array<String>)  {
     runBlocking {
-        operationLog("main", configure = { setAllLogLevel(Level.INFO) }) {
-            val arguments = ArgumentsParser.parse(args = args)
+        operationLog("main", configure = { setAllLogLevel(Level.INFO) }) { logger ->
+            val arguments = ArgumentsParser.parse(logger = logger, args = args)
             val app by di.instance<App>()
-            app.use { it.run(arguments) }
+            app.use { it.run(logger = logger, arguments = arguments) }
         }
     }
 }

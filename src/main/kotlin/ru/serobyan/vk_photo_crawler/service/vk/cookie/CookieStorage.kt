@@ -23,14 +23,14 @@ class CookieStorage(
     suspend fun read(): Set<Cookie> {
         return operationLog("cookie_storage_read", configure = {
             put("path_to_cookie_storage_file", pathToCookieStorageFile)
-        }) {
+        }) { subLogger ->
             val file = File(pathToCookieStorageFile)
             if (!file.exists()) file.createNewFile()
             val cookies = file
                 .readLines()
                 .map { cookie -> fromJSON<Cookie>(cookie) }
                 .toSet()
-            put("cookies", cookies)
+            subLogger.put("cookies", cookies)
             cookies
         }
     }

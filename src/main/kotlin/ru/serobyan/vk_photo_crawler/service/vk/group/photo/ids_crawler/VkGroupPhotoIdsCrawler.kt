@@ -2,62 +2,57 @@ package ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler
 
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
 import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginServiceContext
+import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
 import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
-import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
 
 class VkGroupPhotoIdsCrawler(
     private val vkLoginService: VkLoginService,
     private val vkGroupPhotoIdsGetter: VkGroupPhotoIdsGetter
 ) {
     suspend fun crawlPhotoIds(context: VkGroupPhotoIdsCrawlerContext) {
-        operationLog("crawl_vk_group_photo_ids", configure = {
+        context.logger.operationLog("crawl_vk_group_photo_ids", configure = {
             put("login", context.login)
             put("group_url", context.groupUrl)
-        }) {
-            context.operationLogger = this
+        }) { logger ->
             vkLoginService.login(
                 VkLoginServiceContext(
-                    operationLogger = context.operationLogger,
+                    logger = context.logger,
                     login = context.login,
                     password = context.password
                 )
             )
             val photoIds = vkGroupPhotoIdsGetter.getPhotoIds(
                 VkGroupPhotoIdsGetterContext(
-                    operationLogger = context.operationLogger,
+                    logger = context.logger,
                     groupUrl = context.groupUrl
                 )
             )
             photoIds.collect { photoId ->
-                context.saveVkPhotoIdAndGroupUrl(photoId)
-                inc("crawled_photo_ids")
+                saveVkPhotoIdAndGroupUrl(logger = logger, photoId = photoId, groupUrl = context.groupUrl)
+                logger.inc("crawled_photo_ids")
             }
         }
     }
 
-    private suspend fun VkGroupPhotoIdsCrawlerContext.saveVkPhotoIdAndGroupUrl(photoId: String) {
-        val context = this
-        operationLogger.subOperationLog("save_vk_photo_id_and_group_url", configure = {
-            put("photo_id", photoId)
-            put("group_url", groupUrl)
-        }) {
+    private suspend fun saveVkPhotoIdAndGroupUrl(logger: IOperationLogger, photoId: String, groupUrl: String) {
+        logger.operationLog("save_vk_photo_id_and_group_url", configure = { put("photo_id", photoId) }) { subLogger ->
             try {
-                newSuspendedTransaction {
+                transaction {
                     VkPhotoEntity.new {
                         this.photoId = photoId
-                        this.groupUrl = context.groupUrl
+                        this.groupUrl = groupUrl
                         this.state = VkPhotoState.PHOTO_ID_SAVED
                     }
                 }
             } catch (_: ExposedSQLException) {
-                put("already_saved", true)
-                log(Level.WARN, "already saved")
+                subLogger.put("already_saved", true)
+                subLogger.log(Level.WARN, "already saved")
             }
         }
     }

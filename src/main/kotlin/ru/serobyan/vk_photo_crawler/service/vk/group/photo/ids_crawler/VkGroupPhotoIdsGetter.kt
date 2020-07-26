@@ -14,27 +14,28 @@ import ru.serobyan.vk_photo_crawler.selenium.proxy.getHarEntryByUrl
 import ru.serobyan.vk_photo_crawler.selenium.scrollBy
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
 import ru.serobyan.vk_photo_crawler.utils.json.fromJSON
-import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
+import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 
 class VkGroupPhotoIdsGetter(
     private val driver: WebDriver,
     private val proxy: BrowserMobProxy
 ) {
     suspend fun getPhotoIds(context: VkGroupPhotoIdsGetterContext): Flow<String> {
-        return context.operationLogger.subOperationLog("get_vk_group_photo_ids", configure = {
+        return context.logger.operationLog("get_vk_group_photo_ids", configure = {
             put("group_url", context.groupUrl)
-        }) {
+        }) { logger ->
             flow {
                 driver.get(context.groupUrl)
                 val initialPostIds = VkPhotoIdsParser.parseGroupMainPage(html = driver.pageSource)
-                put("initial_post_ids", initialPostIds)
+                logger.put("initial_post_ids", initialPostIds)
                 initialPostIds.forEach { emit(it) }
-                log()
+                logger.log()
                 try {
-                    while (true) emitAll(context.getMorePhotoIds())
+                    while (true) emitAll(getMorePhotoIds(logger = logger))
                 } catch (e: TimeoutException) {
-                    put("no_more_posts", true)
-                    log("Can't get more posts")
+                    logger.put("no_more_posts", true)
+                    logger.log("Can't get more posts")
                     driver.alert("Can't get more posts")
                     delay(5_000L)
                 }
@@ -42,22 +43,22 @@ class VkGroupPhotoIdsGetter(
         }
     }
 
-    private suspend fun VkGroupPhotoIdsGetterContext.getMorePhotoIds(): Flow<String> {
-        return operationLogger.subOperationLog("get_more_photo_ids") {
+    private suspend fun getMorePhotoIds(logger: IOperationLogger): Flow<String> {
+        return logger.operationLog("get_more_photo_ids") { subLogger ->
             flow {
                 proxy.newHar()
-                scroll()
+                scroll(logger = subLogger)
                 driver.waitUntil { proxy.getHarEntryByUrl(url = Config.vkMorePostRequestUrl).isNotEmpty() }
                 val harEntries = proxy.getHarEntryByUrl(url = Config.vkMorePostRequestUrl)
                 harEntries.forEach { harEntry ->
                     val response: String? = harEntry.response.content.text
                     if (response != null) {
-                        val html = getHtmlResultFromMorePostResponse(response = response)
+                        val html = getHtmlResultFromMorePostResponse(logger = subLogger, response = response)
                         val photoIds =
                             VkPhotoIdsParser.parseMorePostResponse(
                                 html = html
                             )
-                        put("photo_ids", photoIds)
+                        subLogger.put("photo_ids", photoIds)
                         photoIds.forEach { emit(it) }
                     }
                 }
@@ -66,8 +67,8 @@ class VkGroupPhotoIdsGetter(
         }
     }
 
-    private suspend fun VkGroupPhotoIdsGetterContext.scroll() {
-        operationLogger.subOperationLog("scroll") {
+    private suspend fun scroll(logger: IOperationLogger) {
+        logger.operationLog("scroll") {
             repeat(10) {
                 driver.scrollBy(y = 10_000)
                 delay(100L)
@@ -75,11 +76,11 @@ class VkGroupPhotoIdsGetter(
         }
     }
 
-    private suspend fun VkGroupPhotoIdsGetterContext.getHtmlResultFromMorePostResponse(response: String): String {
-        return operationLogger.subOperationLog("get_html_result_from_more_post_response") {
+    private suspend fun getHtmlResultFromMorePostResponse(logger: IOperationLogger, response: String): String {
+        return logger.operationLog("get_html_result_from_more_post_response") { subLogger ->
             val jsonElement = fromJSON<JsonElement>(response)
             val html = jsonElement.asJsonObject["payload"].asJsonArray[1].asJsonArray[0].asString
-            put("html", html)
+            subLogger.put("html", html)
             html
         }
     }

@@ -7,49 +7,47 @@ import org.openqa.selenium.interactions.Actions
 import ru.serobyan.vk_photo_crawler.di.Config
 import ru.serobyan.vk_photo_crawler.selenium.getElement
 import ru.serobyan.vk_photo_crawler.selenium.waitUntilVisibility
-import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
+import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 import kotlin.random.Random
 
 class VkGroupPhotoUrlGetter(
     private val driver: WebDriver
 ) {
     suspend fun getPhotoUrl(context: VkGroupPhotoUrlGetterContext): String {
-        return context.operationLogger.subOperationLog("get_vk_group_photo_url", configure = {
+        return context.logger.operationLog("get_vk_group_photo_url", configure = {
             put("group_url", context.groupUrl)
             put("photo_id", context.photoId)
-        }) {
-            val postUrl = context.getPostUrlWithPhotoUrl()
-            put("post_url", postUrl)
+        }) { logger ->
+            val postUrl = getPostUrlWithPhotoUrl(groupUrl = context.groupUrl, photoId = context.photoId)
+            logger.put("post_url", postUrl)
             driver.get(postUrl)
             val image = driver.getElement(imageBy)
             val photoUrl = image.getAttribute("src")
-            put("photo_url", photoUrl)
+            logger.put("photo_url", photoUrl)
             delay()
             photoUrl
         }
     }
 
-    private suspend fun VkGroupPhotoUrlGetterContext.getPhotoUrlFromOpenOriginalButton(): String {
-        return operationLogger.subOperationLog("get_photo_url_from_open_original_button", configure = {
-            put("group_url", groupUrl)
-            put("photo_id", photoId)
-        }) {
-            val postUrl = getPostUrlWithPhotoUrl()
+    private suspend fun getPhotoUrlFromOpenOriginalButton(logger: IOperationLogger, groupUrl: String, photoId: String): String {
+        return logger.operationLog("get_photo_url_from_open_original_button") { subLogger ->
+            val postUrl = getPostUrlWithPhotoUrl(groupUrl = groupUrl, photoId = photoId)
             driver.get(postUrl)
-            put("post_url", postUrl)
+            subLogger.put("post_url", postUrl)
             val buttonMore = driver.getElement(buttonMoreBy)
             val actionsBuilder = Actions(driver)
             actionsBuilder.moveToElement(buttonMore).build().perform()
             driver.waitUntilVisibility(selector = linkOpenOriginalBy)
             val linkOpenOriginal = driver.getElement(linkOpenOriginalBy)
             val photoUrl = linkOpenOriginal.getAttribute("href")
-            put("photo_url", photoUrl)
+            subLogger.put("photo_url", photoUrl)
             delay()
             photoUrl
         }
     }
 
-    private fun VkGroupPhotoUrlGetterContext.getPostUrlWithPhotoUrl(): String {
+    private fun getPostUrlWithPhotoUrl(groupUrl: String, photoId: String): String {
         return "${groupUrl}?z=photo${photoId}"
     }
 

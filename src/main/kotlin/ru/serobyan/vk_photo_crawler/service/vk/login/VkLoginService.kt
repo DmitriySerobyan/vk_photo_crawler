@@ -6,54 +6,51 @@ import org.openqa.selenium.WebDriver
 import ru.serobyan.vk_photo_crawler.selenium.getElement
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
 import ru.serobyan.vk_photo_crawler.service.vk.cookie.CookieStorage
-import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
+import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
 
 class VkLoginService(
     private val driver: WebDriver,
     private val cookieStorage: CookieStorage
 ) {
     suspend fun login(context: VkLoginServiceContext) {
-        context.operationLogger.subOperationLog("login", configure = {
-            put("login", context.login)
-        }) {
-            context.setCookiesFromStorage()
-            context.goToMainPage()
-            if (!context.isLogin()) {
-                context.fillAndSubmitLoginForm()
-                driver.waitUntil { context.isLogin() }
-                val cookies = context.getFreshCookies()
+        context.logger.operationLog("login", configure = { put("login", context.login) }) { logger ->
+            setCookiesFromStorage(logger = logger)
+            goToMainPage(logger = logger)
+            if (!isLogin(logger = logger)) {
+                fillAndSubmitLoginForm(logger = logger, login = context.login, password = context.password)
+                driver.waitUntil { isLogin(logger = logger) }
+                val cookies = getFreshCookies(logger = logger)
                 cookieStorage.save(cookies)
             }
         }
     }
 
-    private suspend fun VkLoginServiceContext.setCookiesFromStorage() {
-        operationLogger.subOperationLog("set_cookies_from_storage", configure = {
-            put("start_url", startUrl)
-        }) {
+    private suspend fun setCookiesFromStorage(logger: IOperationLogger) {
+        logger.operationLog("set_cookies_from_storage", configure = { put("start_url", startUrl) }) { subLogger ->
             driver.get(startUrl)
             val storageCookies = cookieStorage.read()
-            put("storage_cookies", storageCookies)
+            subLogger.put("storage_cookies", storageCookies)
             storageCookies.forEach { driver.manage().addCookie(it) }
         }
     }
 
-    private suspend fun VkLoginServiceContext.goToMainPage() {
-        operationLogger.subOperationLog("go_to_main_page") {
+    private suspend fun goToMainPage(logger: IOperationLogger) {
+        logger.operationLog("go_to_main_page") {
             driver.get(mainPage)
         }
     }
 
-    private suspend fun VkLoginServiceContext.isLogin(): Boolean {
-        return operationLogger.subOperationLog("is_login") {
+    private suspend fun isLogin(logger: IOperationLogger): Boolean {
+        return logger.operationLog("is_login") { subLogger ->
             val isLogin = "Моя страница" in driver.pageSource
-            put("is_login", isLogin)
+            subLogger.put("is_login", isLogin)
             isLogin
         }
     }
 
-    private suspend fun VkLoginServiceContext.fillAndSubmitLoginForm() {
-        operationLogger.subOperationLog("fill_and_submit_login_form") {
+    private suspend fun fillAndSubmitLoginForm(logger: IOperationLogger, login: String, password: String) {
+        logger.operationLog("fill_and_submit_login_form") {
             val loginInput = driver.getElement(loginInputBy)
             val passwordInput = driver.getElement(passwordInputBy)
             val submitButton = driver.getElement(submitButtonBy)
@@ -63,10 +60,10 @@ class VkLoginService(
         }
     }
 
-    private suspend fun VkLoginServiceContext.getFreshCookies(): Set<Cookie> {
-        return operationLogger.subOperationLog("get_fresh_cookies") {
+    private suspend fun getFreshCookies(logger: IOperationLogger): Set<Cookie> {
+        return logger.operationLog("get_fresh_cookies") { subLogger ->
             val freshCookies = driver.manage().cookies
-            put("fresh_cookies", freshCookies)
+            subLogger.put("fresh_cookies", freshCookies)
             freshCookies
         }
     }
