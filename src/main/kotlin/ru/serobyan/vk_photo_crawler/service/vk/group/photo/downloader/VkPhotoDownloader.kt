@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FilenameUtils
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import ru.serobyan.vk_photo_crawler.di.Config
 import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
@@ -53,7 +53,7 @@ class VkPhotoDownloader(
 
     private suspend fun VkPhotoDownloaderContext.getVkPhotos(): List<VkPhotoEntity> {
         return operationLogger.subOperationLog("get_vk_photos") {
-            val vkPhotos = transaction {
+            val vkPhotos = newSuspendedTransaction {
                 VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_URL_SAVED) and (VkPhotoTable.photoUrl.isNotNull()) }
                     .limit(1000)
@@ -78,7 +78,7 @@ class VkPhotoDownloader(
 
     private suspend fun VkPhotoDownloaderContext.markDownloaded(vkPhoto: VkPhotoEntity) {
         operationLogger.subOperationLog("mark_downloaded") {
-            transaction {
+            newSuspendedTransaction {
                 vkPhoto.state = VkPhotoState.DOWNLOADED
             }
         }

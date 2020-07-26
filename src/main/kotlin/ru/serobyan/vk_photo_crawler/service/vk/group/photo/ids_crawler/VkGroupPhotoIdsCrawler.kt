@@ -2,7 +2,7 @@ package ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler
 
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.event.Level
 import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
@@ -48,7 +48,7 @@ class VkGroupPhotoIdsCrawler(
             put("group_url", groupUrl)
         }) {
             try {
-                transaction {
+                newSuspendedTransaction {
                     VkPhotoEntity.new {
                         this.photoId = photoId
                         this.groupUrl = context.groupUrl

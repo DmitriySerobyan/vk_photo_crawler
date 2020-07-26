@@ -1,7 +1,7 @@
 package ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler
 
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.openqa.selenium.TimeoutException
 import org.slf4j.event.Level
 import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
@@ -46,7 +46,7 @@ class VkGroupPhotoUrlsCrawler(
 
     private suspend fun VkGroupPhotoUrlsCrawlerContext.getVkPhotos(): List<VkPhotoEntity> {
         return operationLogger.subOperationLog("get_vk_photos") {
-            val vkPhotos = transaction {
+            val vkPhotos = newSuspendedTransaction {
                 VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_ID_SAVED) and (VkPhotoTable.groupUrl eq groupUrl) }
                     .limit(100)
@@ -83,7 +83,7 @@ class VkGroupPhotoUrlsCrawler(
         operationLogger.subOperationLog("set_error_state", configure = {
             put("vk_photo", vkPhoto.toVkPhoto())
         }) {
-            transaction {
+            newSuspendedTransaction {
                 vkPhoto.state = VkPhotoState.PHOTO_URL_ERROR
             }
         }
@@ -94,7 +94,7 @@ class VkGroupPhotoUrlsCrawler(
             put("vk_photo", vkPhoto.toVkPhoto())
             put("photo_url", photoUrl)
         }) {
-            transaction {
+            newSuspendedTransaction {
                 vkPhoto.photoUrl = photoUrl
                 vkPhoto.state = VkPhotoState.PHOTO_URL_SAVED
             }
