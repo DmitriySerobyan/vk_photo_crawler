@@ -5,7 +5,18 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <appender name="STDOUT_OPERATION_LOGGER" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="ERROR">
         <appender-ref ref="STDOUT" />
     </root>
+
+    <logger name="main" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT_OPERATION_LOGGER"/>
+    </logger>
+
 </configuration>
