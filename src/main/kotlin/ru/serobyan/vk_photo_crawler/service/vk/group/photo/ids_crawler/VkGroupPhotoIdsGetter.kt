@@ -15,14 +15,15 @@ import ru.serobyan.vk_photo_crawler.selenium.scrollBy
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
 import ru.serobyan.vk_photo_crawler.utils.json.fromJSON
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOrRootOperationLog
 
 class VkGroupPhotoIdsGetter(
     private val driver: WebDriver,
     private val proxy: BrowserMobProxy
 ) {
     suspend fun getPhotoIds(context: VkGroupPhotoIdsGetterContext): Flow<String> {
-        return context.logger.operationLog("get_vk_group_photo_ids", configure = {
+        return context.logger.subOrRootOperationLog("get_vk_group_photo_ids", configure = {
             put("group_url", context.groupUrl)
         }) { logger ->
             flow {
@@ -44,7 +45,7 @@ class VkGroupPhotoIdsGetter(
     }
 
     private suspend fun getMorePhotoIds(logger: IOperationLogger): Flow<String> {
-        return logger.operationLog("get_more_photo_ids") { subLogger ->
+        return logger.subOperationLog("get_more_photo_ids") { subLogger ->
             flow {
                 proxy.newHar()
                 scroll(logger = subLogger)
@@ -68,7 +69,7 @@ class VkGroupPhotoIdsGetter(
     }
 
     private suspend fun scroll(logger: IOperationLogger) {
-        logger.operationLog("scroll") {
+        logger.subOperationLog("scroll") {
             repeat(10) {
                 driver.scrollBy(y = 10_000)
                 delay(100L)
@@ -77,7 +78,7 @@ class VkGroupPhotoIdsGetter(
     }
 
     private suspend fun getHtmlResultFromMorePostResponse(logger: IOperationLogger, response: String): String {
-        return logger.operationLog("get_html_result_from_more_post_response") { subLogger ->
+        return logger.subOperationLog("get_html_result_from_more_post_response") { subLogger ->
             val jsonElement = fromJSON<JsonElement>(response)
             val html = jsonElement.asJsonObject["payload"].asJsonArray[1].asJsonArray[0].asString
             subLogger.put("html", html)

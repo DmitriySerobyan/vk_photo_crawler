@@ -3,8 +3,9 @@ package ru.serobyan.vk_photo_crawler.utils.logging
 import java.time.Instant
 
 data class Operation(
-    val name: String? = null,
-    val id: String? = null,
+    val name: String,
+    val id: String,
+    val parent_ids: List<String>? = null,
     var state: OperationState? = null,
     var start_time: Long? = null,
     var end_time: Long? = null,

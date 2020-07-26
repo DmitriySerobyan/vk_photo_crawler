@@ -15,7 +15,8 @@ import ru.serobyan.vk_photo_crawler.model.VkPhotoEntity
 import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOrRootOperationLog
 import java.io.File
 import java.net.URL
 
@@ -24,7 +25,7 @@ class VkPhotoDownloader(
     private val parallelPhotoDownloadCount: Int = Runtime.getRuntime().availableProcessors() * 4
 ) {
     suspend fun downloadPhotos(context: VkPhotoDownloaderContext) {
-        context.logger.operationLog("download_photos", configure = {
+        context.logger.subOrRootOperationLog("download_photos", configure = {
             put("photos_dir", photosDir)
             put("parallel_photo_download_count", parallelPhotoDownloadCount)
         }) { logger ->
@@ -51,7 +52,7 @@ class VkPhotoDownloader(
     }
 
     private suspend fun getVkPhotos(logger: IOperationLogger): List<VkPhotoEntity> {
-        return logger.operationLog("get_vk_photos") {
+        return logger.subOperationLog("get_vk_photos") {
             val vkPhotos = transaction {
                 VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_URL_SAVED) and (VkPhotoTable.photoUrl.isNotNull()) }
@@ -64,7 +65,7 @@ class VkPhotoDownloader(
     }
 
     private suspend fun savePhotoInFile(logger: IOperationLogger, url: String) {
-        logger.operationLog("save_photo_in_file", configure = { put("url", url) }) {
+        logger.subOperationLog("save_photo_in_file", configure = { put("url", url) }) {
             val photoContent = getPhotoContent(url = url, logger = logger)
             val photoFileName = FilenameUtils.getName(URL(url).path)
             logger.put("photo_file_name", photoFileName)
@@ -74,7 +75,7 @@ class VkPhotoDownloader(
     }
 
     private suspend fun markDownloaded(logger: IOperationLogger, vkPhoto: VkPhotoEntity) {
-        logger.operationLog("mark_downloaded") {
+        logger.subOperationLog("mark_downloaded") {
             transaction {
                 vkPhoto.state = VkPhotoState.DOWNLOADED
             }
@@ -82,7 +83,7 @@ class VkPhotoDownloader(
     }
 
     private suspend fun getPhotoContent(logger: IOperationLogger, url: String): ByteArray {
-        return logger.operationLog("get_photo_content", configure = {
+        return logger.subOperationLog("get_photo_content", configure = {
             put("url", url)
         }) {
             createClient().use { client -> client.get<ByteArray>(url) }

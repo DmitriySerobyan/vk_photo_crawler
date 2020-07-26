@@ -2,11 +2,12 @@ package ru.serobyan.vk_photo_crawler.app.arguments
 
 import org.apache.commons.cli.*
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOrRootOperationLog
 
 object ArgumentsParser {
-    suspend fun parse(logger: IOperationLogger, args: Array<String>): Arguments {
-        return logger.operationLog("parse_cli_args") { subLogger ->
+    suspend fun parse(args: Array<String>, logger: IOperationLogger? = null): Arguments {
+        return logger.subOrRootOperationLog("parse_cli_args") { subLogger ->
             try {
                 subLogger.put("args", args)
                 val cmd = parser.parse(options, args)

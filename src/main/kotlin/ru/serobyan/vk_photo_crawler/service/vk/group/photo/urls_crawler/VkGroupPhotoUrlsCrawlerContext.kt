@@ -6,5 +6,5 @@ data class VkGroupPhotoUrlsCrawlerContext(
     val groupUrl: String,
     val login: String,
     val password: String,
-    val logger: IOperationLogger
+    val logger: IOperationLogger? = null
 )

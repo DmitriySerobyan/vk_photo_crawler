@@ -7,14 +7,15 @@ import ru.serobyan.vk_photo_crawler.selenium.getElement
 import ru.serobyan.vk_photo_crawler.selenium.waitUntil
 import ru.serobyan.vk_photo_crawler.service.vk.cookie.CookieStorage
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOrRootOperationLog
 
 class VkLoginService(
     private val driver: WebDriver,
     private val cookieStorage: CookieStorage
 ) {
     suspend fun login(context: VkLoginServiceContext) {
-        context.logger.operationLog("login", configure = { put("login", context.login) }) { logger ->
+        context.logger.subOrRootOperationLog("login", configure = { put("login", context.login) }) { logger ->
             setCookiesFromStorage(logger = logger)
             goToMainPage(logger = logger)
             if (!isLogin(logger = logger)) {
@@ -27,7 +28,7 @@ class VkLoginService(
     }
 
     private suspend fun setCookiesFromStorage(logger: IOperationLogger) {
-        logger.operationLog("set_cookies_from_storage", configure = { put("start_url", startUrl) }) { subLogger ->
+        logger.subOperationLog("set_cookies_from_storage", configure = { put("start_url", startUrl) }) { subLogger ->
             driver.get(startUrl)
             val storageCookies = cookieStorage.read()
             subLogger.put("storage_cookies", storageCookies)
@@ -36,13 +37,13 @@ class VkLoginService(
     }
 
     private suspend fun goToMainPage(logger: IOperationLogger) {
-        logger.operationLog("go_to_main_page") {
+        logger.subOperationLog("go_to_main_page") {
             driver.get(mainPage)
         }
     }
 
     private suspend fun isLogin(logger: IOperationLogger): Boolean {
-        return logger.operationLog("is_login") { subLogger ->
+        return logger.subOperationLog("is_login") { subLogger ->
             val isLogin = "Моя страница" in driver.pageSource
             subLogger.put("is_login", isLogin)
             isLogin
@@ -50,7 +51,7 @@ class VkLoginService(
     }
 
     private suspend fun fillAndSubmitLoginForm(logger: IOperationLogger, login: String, password: String) {
-        logger.operationLog("fill_and_submit_login_form") {
+        logger.subOperationLog("fill_and_submit_login_form") {
             val loginInput = driver.getElement(loginInputBy)
             val passwordInput = driver.getElement(passwordInputBy)
             val submitButton = driver.getElement(submitButtonBy)
@@ -61,7 +62,7 @@ class VkLoginService(
     }
 
     private suspend fun getFreshCookies(logger: IOperationLogger): Set<Cookie> {
-        return logger.operationLog("get_fresh_cookies") { subLogger ->
+        return logger.subOperationLog("get_fresh_cookies") { subLogger ->
             val freshCookies = driver.manage().cookies
             subLogger.put("fresh_cookies", freshCookies)
             freshCookies

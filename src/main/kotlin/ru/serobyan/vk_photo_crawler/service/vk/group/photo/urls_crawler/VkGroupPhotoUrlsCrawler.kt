@@ -10,14 +10,15 @@ import ru.serobyan.vk_photo_crawler.model.VkPhotoTable
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginServiceContext
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOrRootOperationLog
 
 class VkGroupPhotoUrlsCrawler(
     private val vkLoginService: VkLoginService,
     private val vkGroupPhotoUrlGetter: VkGroupPhotoUrlGetter
 ) {
     suspend fun crawlPhotoUrls(context: VkGroupPhotoUrlsCrawlerContext) {
-        context.logger.operationLog("crawl_vk_group_photo_urls", configure = {
+        context.logger.subOrRootOperationLog("crawl_vk_group_photo_urls", configure = {
             put("login", context.login)
             put("group_url", context.groupUrl)
         }) { logger ->
@@ -44,7 +45,7 @@ class VkGroupPhotoUrlsCrawler(
     }
 
     private suspend fun getVkPhotos(logger: IOperationLogger, groupUrl: String): List<VkPhotoEntity> {
-        return logger.operationLog("get_vk_photos") { subLogger ->
+        return logger.subOperationLog("get_vk_photos") { subLogger ->
             val vkPhotos = transaction {
                 VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_ID_SAVED) and (VkPhotoTable.groupUrl eq groupUrl) }
@@ -57,7 +58,7 @@ class VkGroupPhotoUrlsCrawler(
     }
 
     private suspend fun getPhotoUrl(logger: IOperationLogger, vkPhoto: VkPhotoEntity): String? {
-        return logger.operationLog("get_photo_url", configure = {
+        return logger.subOperationLog("get_photo_url", configure = {
             put("vk_photo", vkPhoto.toVkPhoto())
         }) { subLogger ->
             try {
@@ -79,7 +80,7 @@ class VkGroupPhotoUrlsCrawler(
     }
 
     private suspend fun setErrorState(logger: IOperationLogger, vkPhoto: VkPhotoEntity) {
-        logger.operationLog("set_error_state", configure = {
+        logger.subOperationLog("set_error_state", configure = {
             put("vk_photo", vkPhoto.toVkPhoto())
         }) {
             transaction {
@@ -89,7 +90,7 @@ class VkGroupPhotoUrlsCrawler(
     }
 
     private suspend fun savePhotoUrl(logger: IOperationLogger, vkPhoto: VkPhotoEntity, photoUrl: String) {
-        logger.operationLog("save_photo_url", configure = {
+        logger.subOperationLog("save_photo_url", configure = {
             put("vk_photo", vkPhoto.toVkPhoto())
             put("photo_url", photoUrl)
         }) {

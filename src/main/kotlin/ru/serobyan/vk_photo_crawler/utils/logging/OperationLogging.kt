@@ -3,14 +3,38 @@ package ru.serobyan.vk_photo_crawler.utils.logging
 import org.slf4j.LoggerFactory
 import java.util.*
 
+suspend fun <T> IOperationLogger?.subOrRootOperationLog(
+    operationName: String,
+    operationId: String = generateOperationId(),
+    configure: suspend OperationLoggerSetting.() -> Unit = {},
+    operation: suspend (logger: IOperationLogger) -> T
+): T {
+    return if(this != null) {
+        this.subOperationLog(
+            operationName = operationName,
+            operationId = operationId,
+            configure = configure,
+            operation = operation
+        )
+    } else {
+        operationLog(
+            operationName = operationName,
+            operationId = operationId,
+            configure = configure,
+            operation = operation
+        )
+    }
+}
+
 suspend fun <T> operationLog(
     operationName: String,
     operationId: String = generateOperationId(),
     configure: suspend OperationLoggerSetting.() -> Unit = {},
     operation: suspend (logger: IOperationLogger) -> T
 ): T {
-    val logger = LoggerFactory.getLogger(operationName)
-    val setting = OperationLoggerSetting(logger = logger).apply { configure() }
+    val setting = OperationLoggerSetting(
+        logger = LoggerFactory.getLogger(operationName)
+    ).apply { configure() }
     val context = OperationLoggerContext(
         operation = Operation(
             name = operationName,
@@ -22,22 +46,28 @@ suspend fun <T> operationLog(
     return runOperation(logger = operationLogger, operation = operation)
 }
 
-suspend fun <T> IOperationLogger.operationLog(
+suspend fun <T> IOperationLogger.subOperationLog(
     operationName: String,
+    operationId: String = generateOperationId(),
     configure: suspend OperationLoggerSetting.() -> Unit = {},
     operation: suspend (logger: IOperationLogger) -> T
 ): T {
-    val parentOperationLogger = this
-    val subOperationName = "${parentOperationLogger.context.operation.name}.${operationName}"
-    val logger = LoggerFactory.getLogger(subOperationName)
-    val setting = parentOperationLogger.setting.copy(
-        logger = logger,
-        initialContextData = parentOperationLogger.context.data
+    val parentLogger = this
+    val subOperationName = "${parentLogger.context.operation.name}.${operationName}"
+    val parentOperationIds = if (parentLogger.context.operation.parent_ids != null) {
+        listOf(parentLogger.context.operation.id) + parentLogger.context.operation.parent_ids!!
+    } else {
+        listOf(parentLogger.context.operation.id)
+    }
+    val setting = parentLogger.setting.copy(
+        logger = LoggerFactory.getLogger(subOperationName),
+        initialContextData = parentLogger.context.data
     ).apply { configure() }
     val context = OperationLoggerContext(
         operation = Operation(
             name = subOperationName,
-            id = parentOperationLogger.context.operation.id
+            id = operationId,
+            parent_ids = parentOperationIds
         ),
         data = setting.initialContextData.toMutableMap()
     )

@@ -6,11 +6,10 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
 class OperationLogger(
-    override val setting: OperationLoggerSetting = OperationLoggerSetting(),
-    override val context: OperationLoggerContext = OperationLoggerContext()
+    override val context: OperationLoggerContext,
+    override val setting: OperationLoggerSetting = OperationLoggerSetting()
 ) : IOperationLogger {
     override fun log(level: Level?, message: String?, throwable: Throwable?) {
-        context.time = Instant.now().epochSecond
         val currentLevel = level ?: getCurrentOperationStateLogLevel()
         val currentThrowable = throwable ?: context.operation.exception
         val currentMessage = OperationLoggerMessage(message = message, context = context)

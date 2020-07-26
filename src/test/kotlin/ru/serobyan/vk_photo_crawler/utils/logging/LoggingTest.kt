@@ -12,13 +12,13 @@ class LoggingTest: StringSpec({
             parentLogger.log()
             delay(1000L)
             parentLogger.put("user", 222)
-            parentLogger.operationLog("notify") {logger ->
+            parentLogger.subOperationLog("notify") { logger ->
                 delay(1000L)
                 logger.put("alert", 555)
                 logger.log()
             }
             try {
-                parentLogger.operationLog("error") {
+                parentLogger.subOperationLog("error") {
                     throw IllegalStateException()
                 }
             } catch (_: IllegalStateException) {}

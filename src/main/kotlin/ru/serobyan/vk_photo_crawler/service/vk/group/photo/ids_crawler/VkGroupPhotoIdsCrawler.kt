@@ -9,14 +9,15 @@ import ru.serobyan.vk_photo_crawler.model.VkPhotoState
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginService
 import ru.serobyan.vk_photo_crawler.service.vk.login.VkLoginServiceContext
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOrRootOperationLog
 
 class VkGroupPhotoIdsCrawler(
     private val vkLoginService: VkLoginService,
     private val vkGroupPhotoIdsGetter: VkGroupPhotoIdsGetter
 ) {
     suspend fun crawlPhotoIds(context: VkGroupPhotoIdsCrawlerContext) {
-        context.logger.operationLog("crawl_vk_group_photo_ids", configure = {
+        context.logger.subOrRootOperationLog("crawl_vk_group_photo_ids", configure = {
             put("login", context.login)
             put("group_url", context.groupUrl)
         }) { logger ->
@@ -41,7 +42,7 @@ class VkGroupPhotoIdsCrawler(
     }
 
     private suspend fun saveVkPhotoIdAndGroupUrl(logger: IOperationLogger, photoId: String, groupUrl: String) {
-        logger.operationLog("save_vk_photo_id_and_group_url", configure = { put("photo_id", photoId) }) { subLogger ->
+        logger.subOperationLog("save_vk_photo_id_and_group_url", configure = { put("photo_id", photoId) }) { subLogger ->
             try {
                 transaction {
                     VkPhotoEntity.new {

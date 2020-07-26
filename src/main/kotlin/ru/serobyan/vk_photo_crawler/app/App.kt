@@ -11,7 +11,7 @@ import ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler.VkGroupPh
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler.VkGroupPhotoUrlsCrawler
 import ru.serobyan.vk_photo_crawler.service.vk.group.photo.urls_crawler.VkGroupPhotoUrlsCrawlerContext
 import ru.serobyan.vk_photo_crawler.utils.logging.IOperationLogger
-import ru.serobyan.vk_photo_crawler.utils.logging.operationLog
+import ru.serobyan.vk_photo_crawler.utils.logging.subOperationLog
 import java.io.Closeable
 
 class App(
@@ -26,7 +26,7 @@ class App(
         logger: IOperationLogger,
         arguments: Arguments
     ) {
-        logger.operationLog("app.run") { subLogger ->
+        logger.subOperationLog("app.run") { subLogger ->
             arguments.commands
                 .sortedBy { it.priority }
                 .forEach { command ->
