@@ -1,6 +1,7 @@
 package ru.serobyan.vk_photo_crawler.service.vk.group.photo.ids_crawler
 
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
@@ -34,7 +35,7 @@ class VkGroupPhotoIdsCrawler(
                     groupUrl = context.groupUrl
                 )
             )
-            photoIds.collect { photoId ->
+            photoIds.take(context.photoLimit).collect { photoId ->
                 saveVkPhotoIdAndGroupUrl(logger = logger, photoId = photoId, groupUrl = context.groupUrl)
                 logger.inc("crawled_photo_ids")
             }

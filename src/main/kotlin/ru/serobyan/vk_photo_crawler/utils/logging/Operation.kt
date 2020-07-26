@@ -10,10 +10,11 @@ data class Operation(
     var start_time: Long? = null,
     var end_time: Long? = null,
     var execution_time: Long? = null,
-    @Transient
-    var exception: Throwable? = null,
     var error_description: String? = null
 ) {
+    @Transient
+    var exception: Throwable? = null
+
     fun start() {
         start_time = Instant.now().epochSecond
         state = OperationState.START

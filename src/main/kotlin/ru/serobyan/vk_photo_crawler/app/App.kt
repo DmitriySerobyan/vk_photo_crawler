@@ -34,6 +34,7 @@ class App(
                         AppCommand.CRAWL_PHOTO_IDS -> vkGroupPhotoIdsCrawler.crawlPhotoIds(
                             VkGroupPhotoIdsCrawlerContext(
                                 groupUrl = arguments.groupUrl,
+                                photoLimit = arguments.photoLimit,
                                 login = arguments.login,
                                 password = arguments.password,
                                 logger = subLogger

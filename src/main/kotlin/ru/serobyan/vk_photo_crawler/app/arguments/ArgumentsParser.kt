@@ -16,7 +16,8 @@ object ArgumentsParser {
                     commands = commands.takeIf { it.isNotEmpty() } ?: AppCommand.default,
                     groupUrl = cmd.getOptionValue(optionVkGroupUrl),
                     login = cmd.getOptionValue(optionLogin),
-                    password = cmd.getOptionValue(optionPassword)
+                    password = cmd.getOptionValue(optionPassword),
+                    photoLimit = cmd.getOptionValue(optionPhotoLimit)?.toInt() ?: Int.MAX_VALUE
                 )
                 subLogger.put("parsed_args", arguments)
                 arguments
@@ -35,13 +36,21 @@ object ArgumentsParser {
     private val formatter = HelpFormatter()
 
     private const val optionCommands = "commands"
-    private const val optionVkGroupUrl = "vkGroupUrl"
+    private const val optionPhotoLimit = "photo_limit"
+    private const val optionVkGroupUrl = "vk_group_url"
     private const val optionLogin = "login"
     private const val optionPassword = "password"
 
     private val commands = Option.builder("c")
         .longOpt(optionCommands)
         .desc(AppCommand.availableConsoleCommands)
+        .numberOfArgs(1)
+        .required(false)
+        .build()
+
+    private val photoLimit = Option.builder("pl")
+        .longOpt(optionPhotoLimit)
+        .desc("For example '100'")
         .numberOfArgs(1)
         .required(false)
         .build()
@@ -69,6 +78,7 @@ object ArgumentsParser {
 
     val options = Options().apply {
         addOption(commands)
+        addOption(photoLimit)
         addOption(vkGroupUrl)
         addOption(login)
         addOption(password)
