@@ -52,23 +52,23 @@ class VkPhotoDownloader(
     }
 
     private suspend fun getVkPhotos(logger: IOperationLogger): List<VkPhotoEntity> {
-        return logger.subOperationLog("get_vk_photos") {
+        return logger.subOperationLog("get_vk_photos") { subLogger ->
             val vkPhotos = transaction {
                 VkPhotoEntity
                     .find { (VkPhotoTable.state eq VkPhotoState.PHOTO_URL_SAVED) and (VkPhotoTable.photoUrl.isNotNull()) }
                     .limit(1000)
                     .toList()
             }
-            logger.put("vk_photos", vkPhotos.map { it.toVkPhoto() })
+            subLogger.put("vk_photos", vkPhotos.map { it.toVkPhoto() })
             vkPhotos
         }
     }
 
     private suspend fun savePhotoInFile(logger: IOperationLogger, url: String) {
-        logger.subOperationLog("save_photo_in_file", configure = { put("url", url) }) {
-            val photoContent = getPhotoContent(url = url, logger = logger)
+        logger.subOperationLog("save_photo_in_file", configure = { put("url", url) }) { subLogger ->
+            val photoContent = getPhotoContent(url = url, logger = subLogger)
             val photoFileName = FilenameUtils.getName(URL(url).path)
-            logger.put("photo_file_name", photoFileName)
+            subLogger.put("photo_file_name", photoFileName)
             val file = File(photosDir, photoFileName)
             file.writeBytes(photoContent)
         }
@@ -83,9 +83,7 @@ class VkPhotoDownloader(
     }
 
     private suspend fun getPhotoContent(logger: IOperationLogger, url: String): ByteArray {
-        return logger.subOperationLog("get_photo_content", configure = {
-            put("url", url)
-        }) {
+        return logger.subOperationLog("get_photo_content", configure = { put("url", url) }) {
             createClient().use { client -> client.get<ByteArray>(url) }
         }
     }
