@@ -20,7 +20,7 @@ class VkLoginService(
             goToMainPage(logger = logger)
             if (!isLogin(logger = logger)) {
                 fillAndSubmitLoginForm(logger = logger, login = context.login, password = context.password)
-                driver.waitUntil { isLogin(logger = logger) }
+                driver.waitUntil(timeout = 10) { isLogin(logger = logger) }
                 val cookies = getFreshCookies(logger = logger)
                 cookieStorage.save(cookies)
             }
