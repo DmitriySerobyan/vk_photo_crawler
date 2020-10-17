@@ -6,3 +6,4 @@
 .photo_urls.txt
 .vk_photo_crawler.db
 chromedriver.exe
+debug.log

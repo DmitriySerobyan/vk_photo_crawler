@@ -8,8 +8,11 @@ group = "ru.serobyan"
 version = "0.1-SNAPSHOT"
 
 repositories {
+    google()
     mavenCentral()
     jcenter()
+    gradlePluginPortal()
+    maven(url = "https://kotlin.bintray.com/kotlinx")
 }
 
 dependencies {
@@ -32,6 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:1.3.2")
     implementation("commons-io:commons-io:2.7")
     implementation("commons-cli:commons-cli:1.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:4.3.0")
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.3.0")
     testImplementation("io.kotest:kotest-property-jvm:4.3.0")
