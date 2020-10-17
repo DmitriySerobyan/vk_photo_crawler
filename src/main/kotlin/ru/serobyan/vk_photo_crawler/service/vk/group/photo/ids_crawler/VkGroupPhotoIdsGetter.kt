@@ -81,7 +81,6 @@ class VkGroupPhotoIdsGetter(
         return logger.subOperationLog("get_html_result_from_more_post_response") { subLogger ->
             val jsonElement = fromJSON<JsonElement>(response)
             val html = jsonElement.asJsonObject["payload"].asJsonArray[1].asJsonArray[0].asString
-            subLogger.put("html", html)
             html
         }
     }
