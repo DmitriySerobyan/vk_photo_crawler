@@ -55,10 +55,7 @@ class VkGroupPhotoIdsGetter(
                     val response: String? = harEntry.response.content.text
                     if (response != null) {
                         val html = getHtmlResultFromMorePostResponse(logger = subLogger, response = response)
-                        val photoIds =
-                            VkPhotoIdsParser.parseMorePostResponse(
-                                html = html
-                            )
+                        val photoIds = VkPhotoIdsParser.parseMorePostResponse(html = html)
                         subLogger.put("photo_ids", photoIds)
                         photoIds.forEach { emit(it) }
                     }
@@ -72,7 +69,7 @@ class VkGroupPhotoIdsGetter(
         logger.subOperationLog("scroll") {
             repeat(10) {
                 driver.scrollBy(y = 10_000)
-                delay(100L)
+                delay(1000L)
             }
         }
     }
