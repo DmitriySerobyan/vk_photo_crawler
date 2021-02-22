@@ -29,11 +29,12 @@ class VkGroupPhotoIdsGetter(
             flow {
                 driver.get(context.groupUrl)
                 val initialPostIds = VkPhotoIdsParser.parseGroupMainPage(html = driver.pageSource)
-                logger.put("initial_post_ids", initialPostIds)
                 initialPostIds.forEach { emit(it) }
                 logger.log()
                 try {
-                    while (true) emitAll(getMorePhotoIds(logger = logger))
+                    while (true) {
+                        emitAll(getMorePhotoIds(logger = logger))
+                    }
                 } catch (e: TimeoutException) {
                     logger.put("no_more_posts", true)
                     logger.log("Can't get more posts")
@@ -49,8 +50,10 @@ class VkGroupPhotoIdsGetter(
             flow {
                 proxy.newHar()
                 scroll(logger = subLogger)
+                subLogger.log("wait_har")
                 driver.waitUntil { proxy.getHarEntryByUrl(url = Config.vkMorePostRequestUrl).isNotEmpty() }
                 val harEntries = proxy.getHarEntryByUrl(url = Config.vkMorePostRequestUrl)
+                subLogger.put("har_entries_count", harEntries.size)
                 harEntries.forEach { harEntry ->
                     val response: String? = harEntry.response.content.text
                     if (response != null) {
