@@ -8,5 +8,6 @@ object Config {
     const val vkTimeout: Long = 10L
     const val minDelayBetweenOpenPhotoPost: Long = 500L
     const val maxDelayBetweenOpenPhotoPost: Long = 1000L
+    const val scrollDelay: Long = 10_000L
     const val vkMorePostRequestUrl = "https://vk.com/al_wall.php"
 }

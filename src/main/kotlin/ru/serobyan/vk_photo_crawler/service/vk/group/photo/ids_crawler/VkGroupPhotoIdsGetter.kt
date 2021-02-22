@@ -69,7 +69,7 @@ class VkGroupPhotoIdsGetter(
         logger.subOperationLog("scroll") {
             repeat(10) {
                 driver.scrollBy(y = 10_000)
-                delay(1000L)
+                delay(Config.scrollDelay)
             }
         }
     }
