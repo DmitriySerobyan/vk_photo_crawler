@@ -4,7 +4,7 @@ object Config {
     const val pathToCookieStorage = ".cookies.txt"
     const val pathToChromeDriver: String = "chromedriver.exe"
     const val jdbcUrl = "jdbc:sqlite:.vk_photo_crawler.db"
-    const val photosDir = "D:\\PicturesVk"
+    const val photosDir = "D:\\PicturesV"
     const val vkTimeout: Long = 10L
     const val minDelayBetweenOpenPhotoPost: Long = 500L
     const val maxDelayBetweenOpenPhotoPost: Long = 1000L
